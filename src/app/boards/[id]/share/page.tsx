@@ -1,0 +1,122 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { CloseIcon } from "@/components/icons";
+import { ShareLinkPanel } from "@/components/ShareLinkPanel";
+import { ThemeTile } from "@/components/ThemeTile";
+import { THEMES } from "@/lib/domain";
+import { displayUrl, giftPath, joinPath } from "@/lib/boards";
+import { formatDateKo } from "@/lib/date";
+import { getOwnedBoard } from "@/lib/server/boards";
+import { qrSvg, siteOrigin } from "@/lib/server/site";
+
+export const metadata = { title: "링크 공유" };
+
+export default async function BoardSharePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ created?: string }>;
+}) {
+  const { id } = await params;
+  const { created } = await searchParams;
+  const result = await getOwnedBoard(id);
+  if (!result) notFound();
+  const { board } = result;
+
+  const origin = await siteOrigin();
+  const joinUrl = `${origin}${joinPath(board.join_code)}`;
+  const giftUrl = board.gift_code ? `${origin}${giftPath(board.gift_code)}` : null;
+  const theme = THEMES[board.theme];
+  const [joinQr, giftQr] = await Promise.all([qrSvg(joinUrl), giftUrl ? qrSvg(giftUrl) : Promise.resolve("")]);
+
+  return (
+    <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-white">
+      <header className="flex h-14 shrink-0 items-center justify-end px-2">
+        <Link href={`/boards/${board.id}`} aria-label="닫기" className="flex h-11 w-11 items-center justify-center">
+          <CloseIcon />
+        </Link>
+      </header>
+
+      <main className="flex flex-1 flex-col gap-6 px-5 pb-6">
+        <div className="flex flex-col items-center gap-3 pt-2 text-center">
+          <div className="w-28">
+            {board.theme === "flower" || board.theme === "star" || board.theme === "note" ? (
+              <ThemeTile theme={board.theme} />
+            ) : null}
+          </div>
+          <h1 className="font-display text-2xl font-bold leading-snug">
+            {created ? (
+              <>
+                {theme.sceneName(board.recipient_name)} 보드가
+                <br />
+                열렸어요
+              </>
+            ) : (
+              board.title
+            )}
+          </h1>
+          <p className="text-sm leading-relaxed text-ink-sub">
+            아래 참여 링크를 친구들에게 보내 주세요.
+            <br />
+            {formatDateKo(board.deadline_at)} 자정까지 모을 수 있어요.
+          </p>
+        </div>
+
+        <ShareLinkPanel
+          label="참여 링크"
+          url={joinUrl}
+          displayUrl={displayUrl(joinUrl)}
+          qrSvg={joinQr}
+          shareTitle={board.title}
+        />
+
+        {board.opt_surprise ? (
+          <div className="flex gap-3 rounded-2xl bg-[#FFF6E0] p-4">
+            <span aria-hidden="true" className="mt-0.5 text-[#8A5A00]">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 8v5M12 16v.01" />
+              </svg>
+            </span>
+            <p className="text-[13px] leading-relaxed text-[#5C3D00]">
+              참여 링크는 {board.recipient_name}에게 보내지 마세요. 마감 후 <strong>보드 관리 › 전달하기</strong>에서 선물
+              링크를 따로 만들어 보내요.
+            </p>
+          </div>
+        ) : (
+          giftUrl && (
+            <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-line p-4">
+              <p className="text-[13px] leading-relaxed text-ink-sub">
+                서프라이즈 모드가 꺼져 있어요. 아래 선물 링크를 {board.recipient_name}에게 보내면 메시지가 모이는 과정을
+                실시간으로 볼 수 있어요.
+              </p>
+              <ShareLinkPanel
+                label={`${board.recipient_name}에게 보낼 선물 링크`}
+                url={giftUrl}
+                displayUrl={displayUrl(giftUrl)}
+                qrSvg={giftQr}
+                shareTitle={theme.sceneName(board.recipient_name)}
+              />
+            </div>
+          )
+        )}
+      </main>
+
+      <div className="sticky bottom-0 flex flex-col gap-2 border-t border-line-soft bg-white px-5 pb-6 pt-3">
+        <Link
+          href={joinPath(board.join_code)}
+          className="flex h-[54px] items-center justify-center rounded-2xl bg-brand text-base font-bold text-white"
+        >
+          참여 화면 미리 보기
+        </Link>
+        <Link
+          href={`/boards/${board.id}`}
+          className="flex h-12 items-center justify-center rounded-2xl text-[15px] font-medium text-ink-sub"
+        >
+          보드 관리로 가기
+        </Link>
+      </div>
+    </div>
+  );
+}
