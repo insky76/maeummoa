@@ -6,11 +6,11 @@ export const LEGAL = {
   serviceName: "마음모아",
   serviceUrl: "https://maummoa.online",
   /** 운영자(개인정보 보호책임자) 이름 */
-  operatorName: "[운영자 이름]",
+  operatorName: "하인석",
   /** 문의·개인정보 요청을 받을 이메일 */
-  contactEmail: "[문의 이메일]",
+  contactEmail: "insky76@gmail.com",
   /** Supabase 프로젝트 리전 (Project Settings › General › Region) */
-  dataRegion: "[데이터 저장 리전]",
+  dataRegion: "인도 뭄바이(AWS ap-south-1)",
   /** 시행일 */
   effectiveDate: "2026년 11월 15일",
 };
