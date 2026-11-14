@@ -42,8 +42,10 @@ supabase/migrations/      DB 스키마 (RLS 포함)
 ### 1. Supabase 프로젝트
 
 1. https://supabase.com 에서 새 프로젝트를 만든다. 리전은 `Northeast Asia (Seoul)` 권장.
-2. **SQL Editor**에서 `supabase/migrations/20261109000000_init.sql` 내용을 붙여 넣고 실행한다.
-   (Supabase CLI를 쓴다면 `supabase link` 후 `supabase db push`)
+2. **SQL Editor**에서 `supabase/migrations/` 의 파일을 **모두, 파일 이름 순서대로** 붙여 넣고 실행한다.
+   - `20261109000000_init.sql` → `20261109010000_saved_gifts_server_only.sql` → (이후 추가되는 파일)
+   - 뒤의 파일에 보안 설정이 들어 있으므로 하나라도 빠뜨리면 안 된다.
+   - Supabase CLI를 쓴다면 `supabase link` 후 `supabase db push` 로 한 번에 적용된다.
 3. **Project Settings › API**에서 아래 값을 `.env.local`에 넣는다.
    - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
    - anon public key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
