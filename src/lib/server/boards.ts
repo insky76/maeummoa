@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
-import type { BoardRow } from "@/lib/types";
+import type { BoardRow, OwnerMessage } from "@/lib/types";
 
 export const BOARD_COLUMNS =
   "id, owner_id, recipient_name, occasion, theme, title, intro, deadline_at, status, join_code, gift_code, reveal_at, delivered_at, opt_preview_messages, opt_require_approval, opt_surprise, opt_public_result, recipient_user_id, owner_seen_at, created_at, updated_at";
@@ -47,4 +47,16 @@ export async function listOwnedBoards(): Promise<(BoardRow & { messageCount: num
     ...(b as BoardRow),
     messageCount: messages?.length ?? 0,
   }));
+}
+
+/** 관리 화면용 메시지 목록 (RLS + 컬럼 권한으로 본인 보드의 허용된 컬럼만) */
+export async function listOwnerMessages(boardId: string): Promise<OwnerMessage[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("messages")
+    .select("id, nickname, body, style, status, edited_by_owner, report_count, created_at, updated_at")
+    .eq("board_id", boardId)
+    .order("created_at", { ascending: false });
+  if (error) console.error("listOwnerMessages failed", error);
+  return (data as OwnerMessage[] | null) ?? [];
 }
