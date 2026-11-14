@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createBoardSchema, type CreateBoardInput } from "@/lib/validation";
 import { deadlineFromDate } from "@/lib/date";
 import { newGiftCode, newJoinCode } from "@/lib/codes";
@@ -30,11 +31,15 @@ export async function createBoard(input: CreateBoardInput): Promise<CreateBoardR
     return { ok: false, error: "로그인이 필요해요. 다시 로그인해 주세요." };
   }
 
+  // 보드 쓰기는 서버 전용이다 (authenticated 에는 boards 쓰기 권한이 없다).
+  // 소유자는 반드시 위에서 확인한 user.id 로만 정한다.
+  const admin = createAdminClient();
+
   // 서프라이즈 OFF: 주인공이 모으는 동안에도 볼 수 있도록 선물 링크를 바로 만든다.
   let boardId: string | null = null;
   try {
     for (let attempt = 0; attempt < 3 && !boardId; attempt++) {
-      const { data, error } = await supabase
+      const { data, error } = await admin
         .from("boards")
         .insert({
           owner_id: user.id,

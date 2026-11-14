@@ -83,6 +83,7 @@ supabase/migrations/      DB 스키마 (RLS 포함)
 ## 보안 원칙
 
 - 참여자(비로그인)의 작성·수정·삭제와 선물 페이지 조회는 모두 서버 API에서 service role로 처리한다. RLS에는 익명 정책을 두지 않는다.
+- 개설자의 쓰기(보드 생성·수정, 메시지 관리, 마감·전달)도 서버에서 service role로 처리한다. 로그인 사용자(authenticated)에게는 `boards`·`messages`·`reports` 쓰기 권한이 없고, 조회만 RLS로 본인 것에 한해 허용한다. 서버는 `getUser()`로 확인한 id가 `boards.owner_id`와 같은지 먼저 확인한 뒤 쓴다.
 - 메시지 비밀번호는 bcrypt 해시로만 저장한다. 개설자도 `password_hash`, `client_hash` 컬럼은 조회할 수 없다.
 - 클라이언트에서 `messages`를 조회할 때는 `select('*')` 대신 컬럼을 명시한다.
 
