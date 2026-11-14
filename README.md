@@ -11,6 +11,7 @@
 npm install
 cp .env.example .env.local   # 값 채우기 (아래 "외부 서비스 설정")
 npm run dev                  # http://localhost:3000
+npm test                     # 로직 테스트 (vitest)
 ```
 
 Supabase 키가 없어도 화면은 뜬다. 로그인과 DB가 필요한 기능만 "키가 연결되지 않았어요" 안내가 나온다.
@@ -28,9 +29,15 @@ src/
     me/                   내 보드 (만든 / 받은)
     boards/[id]/          보드 관리 (현황)
     boards/[id]/share/    완료 · 링크 공유 (복사, 카카오톡, QR)
+    w/[code]/             참여 페이지 · write(작성) · done(완료·수정·삭제) · mine(내 메시지 찾기)
+    api/w/[code]/         messages(작성), find(이름+비밀번호로 찾기)
+    api/messages/[id]/    PATCH·DELETE(비밀번호), verify, report
   components/             공용 UI (로고, 아이콘, 테마 그림)
   lib/
     domain.ts             상황·테마·문구·제한값
+    theme-styles.ts       테마별 꾸밈 선택지 (꽃 종류, 별 색, 쪽지 색)
+    moderation.ts         금칙어 필터
+    server/               서버 전용 조회·인증 (service role 사용 부분)
     codes.ts              참여·선물 링크 코드 생성
     supabase/             server / client / admin(service role) 클라이언트
   middleware.ts           세션 갱신, 로그인 필요 경로 보호
@@ -42,7 +49,8 @@ supabase/migrations/      DB 스키마 (RLS 포함)
 ### 1. Supabase 프로젝트
 
 1. https://supabase.com 에서 새 프로젝트를 만든다. 리전은 `Northeast Asia (Seoul)` 권장.
-2. **SQL Editor**에서 `supabase/migrations/20261109000000_init.sql` 내용을 붙여 넣고 실행한다.
+2. **SQL Editor**에서 `supabase/migrations/` 의 파일을 **이름 순서대로** 모두 실행한다.
+   - `20261109000000_init.sql` → `20261109010000_saved_gifts_server_only.sql` → `20261114000000_message_password_lock.sql`
    (Supabase CLI를 쓴다면 `supabase link` 후 `supabase db push`)
 3. **Project Settings › API**에서 아래 값을 `.env.local`에 넣는다.
    - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
@@ -88,7 +96,7 @@ supabase/migrations/      DB 스키마 (RLS 포함)
 
 - [x] M1 기반: 프로젝트 셋업, DB 스키마, 카카오·구글 로그인
 - [x] M2 개설자: 보드 만들기 4단계, 내 보드, 링크 공유 (보드 관리는 현황 요약까지)
-- [ ] M3 참여자: 참여 페이지, 작성·수정·삭제, 금칙어, 작성 횟수 제한
+- [x] M3 참여자: 참여 페이지, 작성·수정·삭제, 금칙어, 작성 횟수 제한, 내 메시지 찾기, 신고
 - [ ] M4 주인공: 오프닝, 테마 3종 장면, 목록 보기
 - [ ] M5 관리·전달: 메시지 관리, 마감, 전달, 예약 공개
 - [ ] M6 마무리: 카카오톡 미리보기 이미지, 이미지 저장, 신고, 배포

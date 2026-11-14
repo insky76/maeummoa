@@ -33,3 +33,35 @@ export const createBoardSchema = z.object({
 });
 
 export type CreateBoardInput = z.infer<typeof createBoardSchema>;
+
+// ─── 참여자 메시지 ───────────────────────────────
+
+const password = z.string().regex(/^\d{4}$/, "비밀번호는 숫자 4자리로 정해 주세요.");
+const nickname = z
+  .string()
+  .trim()
+  .min(1, "이름을 입력해 주세요.")
+  .max(LIMITS.nickname, `이름은 ${LIMITS.nickname}자까지 쓸 수 있어요.`);
+const body = z
+  .string()
+  .trim()
+  .min(1, "메시지를 입력해 주세요.")
+  .max(LIMITS.body, `메시지는 ${LIMITS.body}자까지 쓸 수 있어요.`);
+const variant = z.string().min(1).max(20);
+
+export const createMessageSchema = z.object({ nickname, body, variant, password });
+export type CreateMessageInput = z.infer<typeof createMessageSchema>;
+
+export const updateMessageSchema = z.object({
+  password,
+  nickname: nickname.optional(),
+  body: body.optional(),
+  variant: variant.optional(),
+});
+export type UpdateMessageInput = z.infer<typeof updateMessageSchema>;
+
+export const passwordOnlySchema = z.object({ password });
+
+export const findMessagesSchema = z.object({ nickname, password });
+
+export const reportSchema = z.object({ reason: z.string().trim().max(200).optional() });

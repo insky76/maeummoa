@@ -16,6 +16,8 @@ export interface ThemeCopy {
   writeCta: string;     // 참여 버튼: "꽃 한 송이 꽂기"
   submitCta: string;    // 작성 완료 버튼: "꽃 꽂기"
   sceneName: (recipient: string) => string; // 결과 화면 이름
+  participated: (n: number) => string;        // "12명이 꽃을 꽂았어요"
+  ordinal: (n: number) => string;             // "13번째 꽃이 꽂혔어요!"
   available: boolean;   // 첫 출시 포함 여부
 }
 
@@ -29,6 +31,8 @@ export const THEMES: Record<ThemeKey, ThemeCopy> = {
     writeCta: "꽃 한 송이 꽂기",
     submitCta: "꽃 꽂기",
     sceneName: (r) => `${r}의 꽃다발`,
+    participated: (n) => `${n}명이 꽃을 꽂았어요`,
+    ordinal: (n) => `${n}번째 꽃이 꽂혔어요!`,
     available: true,
   },
   star: {
@@ -40,6 +44,8 @@ export const THEMES: Record<ThemeKey, ThemeCopy> = {
     writeCta: "별 띄우기",
     submitCta: "별 띄우기",
     sceneName: (r) => `${r}의 밤하늘`,
+    participated: (n) => `${n}명이 별을 띄웠어요`,
+    ordinal: (n) => `${n}번째 별이 떴어요!`,
     available: true,
   },
   note: {
@@ -51,6 +57,8 @@ export const THEMES: Record<ThemeKey, ThemeCopy> = {
     writeCta: "쪽지 붙이기",
     submitCta: "쪽지 붙이기",
     sceneName: (r) => `${r}의 메모 벽`,
+    participated: (n) => `${n}명이 쪽지를 붙였어요`,
+    ordinal: (n) => `${n}번째 쪽지가 붙었어요!`,
     available: true,
   },
   light: {
@@ -62,6 +70,8 @@ export const THEMES: Record<ThemeKey, ThemeCopy> = {
     writeCta: "불 밝히기",
     submitCta: "불 밝히기",
     sceneName: (r) => `${r}을 위한 객석`,
+    participated: (n) => `${n}명이 불을 밝혔어요`,
+    ordinal: (n) => `${n}번째 불빛이 켜졌어요!`,
     available: false,
   },
   letter: {
@@ -73,6 +83,8 @@ export const THEMES: Record<ThemeKey, ThemeCopy> = {
     writeCta: "편지 넣기",
     submitCta: "편지 넣기",
     sceneName: (r) => `${r}의 우체통`,
+    participated: (n) => `${n}명이 편지를 넣었어요`,
+    ordinal: (n) => `${n}번째 편지가 도착했어요!`,
     available: false,
   },
 };
