@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { ThemeHeroArt } from "@/components/ThemeHero";
 import { MessagePreviewList } from "@/components/MessagePreviewList";
+import { MessageArt } from "@/components/shapes";
 import { THEMES } from "@/lib/domain";
 import { effectiveStatus } from "@/lib/boards";
 import { ddayLabel, formatDateKo } from "@/lib/date";
@@ -91,6 +92,16 @@ export default async function JoinPage({ params }: Props) {
             <p className="rounded-2xl bg-warn-soft px-4 py-3 text-[13px] leading-relaxed text-warn">
               모집이 마감됐어요. 더 이상 메시지를 남길 수 없어요.
             </p>
+          )}
+
+          {board.opt_preview_messages && preview.length > 0 && (
+            <Link
+              href={`/w/${code}/preview`}
+              className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-line text-[15px] font-bold"
+            >
+              <MessageArt theme={board.theme} index={0} size={22} />
+              지금까지 모인 {theme.sceneLabel} 보기
+            </Link>
           )}
 
           {board.opt_preview_messages && preview.length > 0 && (
