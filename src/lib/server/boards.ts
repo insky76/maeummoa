@@ -2,8 +2,8 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { BoardRow } from "@/lib/types";
 
-const BOARD_COLUMNS =
-  "id, owner_id, recipient_name, occasion, theme, title, intro, deadline_at, status, join_code, gift_code, reveal_at, delivered_at, opt_preview_messages, opt_require_approval, opt_surprise, opt_public_result, created_at, updated_at";
+export const BOARD_COLUMNS =
+  "id, owner_id, recipient_name, occasion, theme, title, intro, deadline_at, status, join_code, gift_code, reveal_at, delivered_at, opt_preview_messages, opt_require_approval, opt_surprise, opt_public_result, recipient_user_id, owner_seen_at, created_at, updated_at";
 
 /**
  * 메시지 개수는 messages(id) 를 받아 길이로 센다.

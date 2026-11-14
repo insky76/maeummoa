@@ -40,3 +40,25 @@ export const createBoardSchema = z.object({
 });
 
 export type CreateBoardInput = z.infer<typeof createBoardSchema>;
+
+/** 참여자 메시지 작성 */
+export const messageSchema = z.object({
+  nickname: z
+    .string()
+    .trim()
+    .min(1, "이름을 입력해 주세요.")
+    .max(LIMITS.nickname, `이름은 ${LIMITS.nickname}자까지 쓸 수 있어요.`),
+  body: z
+    .string()
+    .trim()
+    .min(1, "메시지를 입력해 주세요.")
+    .max(LIMITS.body, `메시지는 ${LIMITS.body}자까지 쓸 수 있어요.`),
+  password: z.string().regex(/^\d{4}$/, "비밀번호는 숫자 4자리로 정해 주세요."),
+  variant: z.string().max(20),
+});
+
+export type MessageInput = z.infer<typeof messageSchema>;
+
+export const passwordSchema = z.string().regex(/^\d{4}$/, "숫자 4자리를 입력해 주세요.");
+
+export const bodySchema = messageSchema.shape.body;
