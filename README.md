@@ -96,7 +96,7 @@ supabase/migrations/      DB 스키마 (RLS 포함)
 
 1. GitHub 저장소를 Vercel에 Import (Framework: Next.js, 설정 변경 없음)
 2. **Settings › Environment Variables**에 `.env.example`의 항목을 모두 넣는다.
-   - `NEXT_PUBLIC_SITE_URL`은 배포 주소 (예: `https://maeummoa.vercel.app`)
+   - `NEXT_PUBLIC_SITE_URL`은 배포 주소 (예: `https://maeummoa.vercel.app`). 처음 배포라 주소를 모르면 이 항목을 아예 넣지 않아도 된다 (Vercel 배포 주소를 자동으로 쓴다). 나중에 도메인을 연결하면 그 주소로 넣는다.
    - `SUPABASE_SERVICE_ROLE_KEY`, `MM_SECRET`은 Production·Preview 모두에 넣되 공개 저장소에는 절대 올리지 않는다.
 3. **Deploy**. 배포 주소를 Supabase **Redirect URLs**, 카카오 **사이트 도메인**에 추가한다.
 4. 결과 이미지 저장(`/g/{code}/image`)은 메시지가 많으면 몇 초 걸린다. 라우트에 `maxDuration = 30`이 설정되어 있다.
