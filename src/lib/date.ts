@@ -47,3 +47,25 @@ export function ddayLabel(iso: string, now: Date = new Date()): string {
   const n = daysUntil(iso, now);
   return n === 0 ? "D-DAY" : n > 0 ? `D-${n}` : "마감";
 }
+
+/** ISO → "11월 17일 (화) 오전 9:00" (KST) */
+export function formatDateTimeKo(iso: string): string {
+  const k = new Date(Date.parse(iso) + KST_OFFSET_MS);
+  const h = k.getUTCHours();
+  const m = k.getUTCMinutes();
+  const ampm = h < 12 ? "오전" : "오후";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${formatDateKo(iso)} ${ampm} ${h12}:${String(m).padStart(2, "0")}`;
+}
+
+/** KST 'YYYY-MM-DDTHH:mm' (datetime-local 값) → ISO. 형식이 틀리면 null */
+export function kstLocalToIso(local: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(local)) return null;
+  const t = Date.parse(`${local}:00+09:00`);
+  return Number.isNaN(t) ? null : new Date(t).toISOString();
+}
+
+/** ISO → KST 'YYYY-MM-DDTHH:mm' (datetime-local 기본값용) */
+export function isoToKstLocal(iso: string): string {
+  return new Date(Date.parse(iso) + KST_OFFSET_MS).toISOString().slice(0, 16);
+}
