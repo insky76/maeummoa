@@ -16,6 +16,11 @@ export interface ThemeCopy {
   writeCta: string;     // 참여 버튼: "꽃 한 송이 꽂기"
   submitCta: string;    // 작성 완료 버튼: "꽃 꽂기"
   sceneName: (recipient: string) => string; // 결과 화면 이름
+  sceneLabel: string;   // 결과 화면 탭 이름: "꽃다발"
+  countLine: (n: number) => string;  // 참여·결과 화면: "12명이 꽃을 꽂았어요"
+  doneTitle: (n: number) => string;  // 작성 완료: "13번째 꽃이 꽂혔어요!"
+  openingLine: (n: number) => string; // 오프닝: "14명이 마음을 모아 / 꽃다발을 만들었어요"
+  tapHint: string;      // "꽃을 눌러 메시지를 읽어 보세요"
   available: boolean;   // 첫 출시 포함 여부
 }
 
@@ -29,6 +34,11 @@ export const THEMES: Record<ThemeKey, ThemeCopy> = {
     writeCta: "꽃 한 송이 꽂기",
     submitCta: "꽃 꽂기",
     sceneName: (r) => `${r}의 꽃다발`,
+    sceneLabel: "꽃다발",
+    countLine: (n) => `${n}명이 꽃을 꽂았어요`,
+    doneTitle: (n) => `${n}번째 꽃이 꽂혔어요!`,
+    openingLine: (n) => `${n}명이 마음을 모아\n꽃다발을 만들었어요`,
+    tapHint: "꽃을 눌러 메시지를 읽어 보세요",
     available: true,
   },
   star: {
@@ -40,6 +50,11 @@ export const THEMES: Record<ThemeKey, ThemeCopy> = {
     writeCta: "별 띄우기",
     submitCta: "별 띄우기",
     sceneName: (r) => `${r}의 밤하늘`,
+    sceneLabel: "밤하늘",
+    countLine: (n) => `${n}개의 별이 떴어요`,
+    doneTitle: (n) => `${n}번째 별이 떴어요!`,
+    openingLine: (n) => `${n}명이 마음을 모아\n밤하늘을 채웠어요`,
+    tapHint: "별을 눌러 메시지를 읽어 보세요",
     available: true,
   },
   note: {
@@ -51,6 +66,11 @@ export const THEMES: Record<ThemeKey, ThemeCopy> = {
     writeCta: "쪽지 붙이기",
     submitCta: "쪽지 붙이기",
     sceneName: (r) => `${r}의 메모 벽`,
+    sceneLabel: "쪽지 벽",
+    countLine: (n) => `쪽지 ${n}장이 붙었어요`,
+    doneTitle: (n) => `${n}번째 쪽지가 붙었어요!`,
+    openingLine: (n) => `${n}명이 마음을 모아\n쪽지를 붙였어요`,
+    tapHint: "쪽지를 눌러 크게 읽어 보세요",
     available: true,
   },
   light: {
@@ -62,6 +82,11 @@ export const THEMES: Record<ThemeKey, ThemeCopy> = {
     writeCta: "불 밝히기",
     submitCta: "불 밝히기",
     sceneName: (r) => `${r}을 위한 객석`,
+    sceneLabel: "객석",
+    countLine: (n) => `${n}개의 불빛이 켜졌어요`,
+    doneTitle: (n) => `${n}번째 불빛이 켜졌어요!`,
+    openingLine: (n) => `${n}명이 마음을 모아\n객석을 밝혔어요`,
+    tapHint: "응원봉을 눌러 메시지를 읽어 보세요",
     available: false,
   },
   letter: {
@@ -73,6 +98,11 @@ export const THEMES: Record<ThemeKey, ThemeCopy> = {
     writeCta: "편지 넣기",
     submitCta: "편지 넣기",
     sceneName: (r) => `${r}의 우체통`,
+    sceneLabel: "우체통",
+    countLine: (n) => `편지 ${n}통이 도착했어요`,
+    doneTitle: (n) => `${n}번째 편지가 들어갔어요!`,
+    openingLine: (n) => `${n}명이 마음을 모아\n편지를 보냈어요`,
+    tapHint: "편지를 눌러 읽어 보세요",
     available: false,
   },
 };
@@ -108,4 +138,13 @@ export const LIMITS = {
   passwordDigits: 4,
   passwordMaxTries: 5,
   passwordLockMinutes: 10,
+  /** 같은 기기: 한 보드에 다음 메시지까지 기다리는 시간(초), 하루 최대 개수 */
+  deviceCooldownSec: 30,
+  devicePerDay: 5,
+  /** 같은 네트워크(IP): 한 보드에 한 시간 최대 개수. 사무실처럼 여럿이 같은 IP 를 쓰는 경우를 생각해 넉넉하게 */
+  ipPerHour: 30,
+  /** 예약 공개는 지금부터 30일 이내 */
+  revealMaxDays: 30,
+  /** 이 개수 이상이면 장면을 넓게 펼친다 (꽃밭·은하수) */
+  sceneExpandAt: 50,
 } as const;

@@ -67,9 +67,9 @@ export function ShareLinkPanel({
       try {
         await navigator.share({ title: shareTitle, url });
         return;
-      } catch {
-        // 사용자가 공유 시트를 닫은 경우 등
-        return;
+      } catch (e) {
+        // 사용자가 공유 시트를 닫은 경우는 그대로 끝내고, 그 밖의 실패는 복사로 넘어간다
+        if (e instanceof DOMException && e.name === "AbortError") return;
       }
     }
     copy();
