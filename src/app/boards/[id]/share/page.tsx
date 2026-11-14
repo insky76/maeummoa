@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CloseIcon } from "@/components/icons";
+import { BackIcon } from "@/components/icons";
+import { OwnerNav } from "@/components/OwnerNav";
 import { ShareLinkPanel } from "@/components/ShareLinkPanel";
 import { ThemeTile } from "@/components/ThemeTile";
 import { THEMES } from "@/lib/domain";
@@ -32,20 +33,22 @@ export default async function BoardSharePage({
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-white">
-      <header className="flex h-14 shrink-0 items-center justify-end px-2">
-        <Link href={`/boards/${board.id}`} aria-label="닫기" className="flex h-11 w-11 items-center justify-center">
-          <CloseIcon />
+      <header className="flex h-14 shrink-0 items-center justify-between px-2">
+        <Link href={`/boards/${board.id}`} className="flex h-11 items-center gap-1 pr-2 text-[15px] font-bold">
+          <BackIcon />
+          보드 관리
         </Link>
+        <OwnerNav />
       </header>
 
-      <main className="flex flex-1 flex-col gap-6 px-5 pb-6">
-        <div className="flex flex-col items-center gap-3 pt-2 text-center">
-          <div className="w-28">
+      <main className="flex flex-1 flex-col gap-6 px-5 pb-6 short:gap-4">
+        <div className="flex flex-col items-center gap-3 pt-2 text-center short:gap-2 short:pt-0">
+          <div className="w-28 short:w-20">
             {board.theme === "flower" || board.theme === "star" || board.theme === "note" ? (
               <ThemeTile theme={board.theme} />
             ) : null}
           </div>
-          <h1 className="font-display text-2xl font-bold leading-snug">
+          <h1 className="font-display text-2xl font-bold leading-snug short:text-xl">
             {created ? (
               <>
                 {theme.sceneName(board.recipient_name)} 보드가
@@ -103,18 +106,18 @@ export default async function BoardSharePage({
         )}
       </main>
 
-      <div className="sticky bottom-0 flex flex-col gap-2 border-t border-line-soft bg-white px-5 pb-6 pt-3">
+      <div className="sticky bottom-0 grid grid-cols-2 gap-2 border-t border-line-soft bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3">
         <Link
           href={joinPath(board.join_code)}
-          className="flex h-[54px] items-center justify-center rounded-2xl bg-brand text-base font-bold text-white"
+          className="flex h-[52px] items-center justify-center rounded-2xl border border-line text-[15px] font-bold"
         >
-          참여 화면 미리 보기
+          참여 화면 보기
         </Link>
         <Link
           href={`/boards/${board.id}`}
-          className="flex h-12 items-center justify-center rounded-2xl text-[15px] font-medium text-ink-sub"
+          className="flex h-[52px] items-center justify-center rounded-2xl bg-brand text-[15px] font-bold text-white"
         >
-          보드 관리로 가기
+          보드 관리
         </Link>
       </div>
     </div>

@@ -34,6 +34,9 @@ export default async function GiftPage({ params }: Props) {
   const board = await getBoardByGiftCode(code);
   if (!board) notFound();
 
+  // 메시지는 미리 불러오기 시작한다 (볼 수 없는 경우엔 쓰지 않고 버린다)
+  const messagesPromise = listVisibleMessages(board.id);
+
   let userId: string | null = null;
   if (env.isSupabaseConfigured()) {
     const {
@@ -96,18 +99,19 @@ export default async function GiftPage({ params }: Props) {
     );
   }
 
-  const messages = await listVisibleMessages(board.id);
-  const origin = await siteOrigin();
-  let saved = false;
-  if (userId && !access.asOwner) {
-    const { data } = await createAdminClient()
-      .from("saved_gifts")
-      .select("board_id")
-      .eq("user_id", userId)
-      .eq("board_id", board.id)
-      .maybeSingle();
-    saved = !!data;
-  }
+  const [messages, origin, saved] = await Promise.all([
+    messagesPromise,
+    siteOrigin(),
+    userId && !access.asOwner
+      ? createAdminClient()
+          .from("saved_gifts")
+          .select("board_id")
+          .eq("user_id", userId)
+          .eq("board_id", board.id)
+          .maybeSingle()
+          .then(({ data }) => !!data)
+      : Promise.resolve(false),
+  ]);
 
   return (
     <GiftView

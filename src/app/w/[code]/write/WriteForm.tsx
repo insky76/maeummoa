@@ -60,12 +60,14 @@ export function WriteForm({
         <span className="text-base font-bold">{copy.writeCta}</span>
       </header>
 
-      <main className="flex flex-1 flex-col gap-6 px-5 pb-6 pt-2">
+      <main className="flex flex-1 flex-col gap-6 px-5 pb-6 pt-2 short:gap-4">
         <div
-          className="flex flex-col items-center gap-3.5 rounded-[20px] pb-4 pt-5"
+          className="flex flex-col items-center gap-3.5 rounded-[20px] pb-4 pt-5 short:gap-2 short:pb-3 short:pt-3"
           style={{ background: theme === "flower" ? "#FCE8EC" : ts.bg }}
         >
-          <MessageArt theme={theme} variant={current} size={88} />
+          <div className="w-[88px] short:w-14 [&>svg]:h-auto [&>svg]:w-full">
+            <MessageArt theme={theme} variant={current} size={88} />
+          </div>
           <div role="radiogroup" aria-label={`${copy.item} 고르기`} className="flex flex-wrap justify-center gap-2.5 px-3">
             {variants.map((v) => (
               <button
@@ -150,7 +152,7 @@ export function WriteForm({
         )}
       </main>
 
-      <div className="sticky bottom-0 border-t border-line-soft bg-white px-5 pb-6 pt-3">
+      <div className="sticky bottom-0 border-t border-line-soft bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3">
         <button
           type="submit"
           disabled={pending}

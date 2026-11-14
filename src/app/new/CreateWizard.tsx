@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { BackIcon } from "@/components/icons";
+import { BackIcon, BoardsIcon, HomeIcon } from "@/components/icons";
 import { ThemeSwatch } from "@/components/ThemeSwatch";
 import { ToggleRow } from "@/components/Toggle";
 import { LIMITS, OCCASIONS, THEMES, getOccasion, type OccasionKey, type ThemeKey } from "@/lib/domain";
@@ -134,15 +134,23 @@ export function CreateWizard({ today }: { today: string }) {
           </button>
         )}
         <span className="text-base font-bold">보드 만들기</span>
-        <span className="ml-auto pr-4 text-[13px] text-ink-muted">
+        <span className="ml-2 text-[13px] text-ink-muted">
           {step} / {STEP_COUNT}
         </span>
+        <nav aria-label="바로 가기" className="ml-auto flex">
+          <Link href="/" aria-label="홈" title="홈" className="flex h-11 w-11 items-center justify-center text-ink-sub">
+            <HomeIcon />
+          </Link>
+          <Link href="/me" aria-label="내 보드" title="내 보드" className="flex h-11 w-11 items-center justify-center text-ink-sub">
+            <BoardsIcon />
+          </Link>
+        </nav>
       </header>
       <div className="h-1 shrink-0 bg-line-soft" aria-hidden="true">
         <div className="h-1 bg-brand transition-[width]" style={{ width: `${(step / STEP_COUNT) * 100}%` }} />
       </div>
 
-      <main className="flex flex-1 flex-col gap-6 px-5 pb-6 pt-7">
+      <main className="flex flex-1 flex-col gap-6 px-5 pb-6 pt-7 short:gap-4 short:pt-4">
         {step === 1 && (
           <>
             <h1 className="font-display text-2xl font-bold leading-snug">
@@ -357,7 +365,7 @@ export function CreateWizard({ today }: { today: string }) {
         )}
       </main>
 
-      <div className="sticky bottom-0 border-t border-line-soft bg-white px-5 pb-6 pt-3">
+      <div className="sticky bottom-0 border-t border-line-soft bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3">
         {step < STEP_COUNT ? (
           <button
             type="button"
