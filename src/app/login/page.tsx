@@ -55,7 +55,15 @@ export default async function LoginPage({
       <div className="flex flex-col gap-2.5 px-5 pb-7">
         <LoginButtons next={next} configured={env.isSupabaseConfigured()} />
         <p className="mt-2 text-center text-xs leading-relaxed text-ink-muted">
-          시작하면 이용약관과 개인정보 처리방침에 동의하게 돼요.
+          시작하면{" "}
+          <Link href="/terms" className="underline underline-offset-2">
+            이용약관
+          </Link>
+          과{" "}
+          <Link href="/privacy" className="underline underline-offset-2">
+            개인정보처리방침
+          </Link>
+          에 동의하게 돼요.
         </p>
       </div>
     </div>

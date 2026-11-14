@@ -63,6 +63,15 @@ export default function Home() {
             ))}
           </ol>
         </section>
+
+        <footer className="flex gap-4 pt-2 text-xs text-ink-muted">
+          <Link href="/terms" className="underline underline-offset-2">
+            이용약관
+          </Link>
+          <Link href="/privacy" className="underline underline-offset-2">
+            개인정보처리방침
+          </Link>
+        </footer>
       </main>
 
       <div className="sticky bottom-0 border-t border-line-soft bg-white px-5 pb-6 pt-3">
