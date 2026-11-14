@@ -5,6 +5,17 @@ import { NextResponse, type NextRequest } from "next/server";
 const PROTECTED = ["/new", "/me", "/boards"];
 
 export async function middleware(request: NextRequest) {
+  // OAuth 로그인 뒤 Supabase 가 허용 목록에 없는 주소 대신 Site URL(메인 등)로 code 를 붙여 보내는 경우가 있다.
+  // 어느 페이지로 돌아오든 code 가 있으면 콜백으로 넘겨 로그인을 마무리한다.
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && request.nextUrl.pathname !== "/auth/callback") {
+    const url = request.nextUrl.clone();
+    const back = request.nextUrl.pathname === "/" ? "/new" : request.nextUrl.pathname;
+    url.pathname = "/auth/callback";
+    url.search = `?code=${encodeURIComponent(code)}&next=${encodeURIComponent(back)}`;
+    return NextResponse.redirect(url);
+  }
+
   let response = NextResponse.next({ request });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
