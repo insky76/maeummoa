@@ -51,7 +51,7 @@ export default async function JoinPage({ params }: Props) {
     <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col bg-white">
       <main className="flex flex-1 flex-col">
         <section
-          className="flex flex-col items-center gap-3.5 px-6 pb-7 pt-5 text-center"
+          className="flex flex-col items-center gap-3.5 px-6 pb-7 pt-5 text-center short:gap-2 short:pb-5 short:pt-3"
           style={{ background: board.theme === "flower" ? "#FCE8EC" : ts.headerBg, color: ts.ink }}
         >
           <div className="flex items-center justify-between self-stretch">
@@ -61,14 +61,16 @@ export default async function JoinPage({ params }: Props) {
             </Link>
             <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${chip.cls}`}>{chip.text}</span>
           </div>
-          <ThemeHeroArt theme={board.theme} />
-          <h1 className="font-display text-[26px] font-bold leading-snug">{board.title}</h1>
+          <div className="w-[170px] short:w-[110px] [&>svg]:h-auto [&>svg]:w-full">
+            <ThemeHeroArt theme={board.theme} />
+          </div>
+          <h1 className="font-display text-[26px] font-bold leading-snug short:text-[22px]">{board.title}</h1>
           <p className="text-sm" style={{ color: ts.sub }}>
             {count > 0 ? <strong>{theme.countLine(count)}</strong> : `첫 번째 ${theme.item}을 기다리고 있어요`}
           </p>
         </section>
 
-        <section className="flex flex-col gap-5 p-6">
+        <section className="flex flex-col gap-5 p-6 short:gap-4 short:p-5">
           {board.intro && (
             <div className="flex flex-col gap-2 rounded-2xl bg-surface p-4">
               <span className="text-xs font-bold text-ink-sub">
@@ -110,7 +112,7 @@ export default async function JoinPage({ params }: Props) {
         </section>
       </main>
 
-      <div className="sticky bottom-0 border-t border-line-soft bg-white px-5 pb-6 pt-3">
+      <div className="sticky bottom-0 border-t border-line-soft bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3">
         {status === "collecting" ? (
           <Link
             href={`/w/${code}/write`}

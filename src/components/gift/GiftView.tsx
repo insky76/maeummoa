@@ -6,7 +6,9 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { CloseIcon } from "@/components/icons";
 import { ReportButton } from "@/components/ReportButton";
 import { GiftScene, SceneIcon } from "@/components/gift/GiftScene";
-import { THEMES, type ThemeKey } from "@/lib/domain";
+import { Logo } from "@/components/Logo";
+import { LIMITS, THEMES, type ThemeKey } from "@/lib/domain";
+import { SCENE_W } from "@/lib/scene-layout";
 import { themeStyle } from "@/lib/theme-style";
 import type { PublicMessage } from "@/lib/types";
 
@@ -171,25 +173,43 @@ export function GiftView({
     );
   }
 
+  // 꽃다발·밤하늘 장면은 기종마다 화면 높이에 맞춰 한 화면에 다 보이게 한다 (넓게 펼친 장면·쪽지 벽·목록은 스크롤)
+  const fit = tab === "scene" && n > 0 && n < LIMITS.sceneExpandAt && board.theme !== "note";
+
   return (
-    <div className="mx-auto flex min-h-dvh max-w-[480px] flex-col" style={{ background: ts.bg, color: ts.ink }}>
+    <div
+      className={`mx-auto flex max-w-[480px] flex-col ${fit ? "h-dvh overflow-hidden" : "min-h-dvh"}`}
+      style={{ background: ts.bg, color: ts.ink }}
+    >
       {mode === "preview" && (
         <div className="flex items-center justify-between gap-2 bg-ink px-4 py-2.5 text-[13px] text-white">
           <span>미리 보기예요. 전달하면 주인공에게 이렇게 보여요.</span>
-          <Link href={`/boards/${board.id}`} className="shrink-0 font-bold underline underline-offset-2">
-            관리로
-          </Link>
+          <span className="flex shrink-0 gap-3">
+            <Link href={`/boards/${board.id}`} className="font-bold underline underline-offset-2">
+              보드 관리
+            </Link>
+            <Link href="/me" className="font-bold underline underline-offset-2">
+              내 보드
+            </Link>
+          </span>
         </div>
       )}
 
-      <header className="sticky top-0 z-10 flex shrink-0 flex-col gap-3.5 px-5 pb-3 pt-4" style={{ background: ts.headerBg }}>
+      <header
+        className="sticky top-0 z-10 flex shrink-0 flex-col gap-3 px-5 pb-3 pt-3 short:gap-2 short:pb-2"
+        style={{ background: ts.headerBg }}
+      >
         <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-1">
+          <div className="flex min-w-0 flex-col gap-1 short:gap-0.5">
+            <Link href="/" className="flex items-center gap-1 self-start text-xs font-bold" style={{ color: ts.sub }} aria-label="마음모아 홈">
+              <Logo size={14} />
+              마음모아
+            </Link>
             <span className="text-[13px] font-medium" style={{ color: ts.sub }}>
               {n > 0 ? theme.countLine(n) : `아직 ${theme.item}이 없어요`}
               {live && " · 실시간"}
             </span>
-            <h1 className="font-display text-2xl font-bold leading-snug">{board.title}</h1>
+            <h1 className="font-display text-2xl font-bold leading-snug short:text-xl">{board.title}</h1>
           </div>
           {canSave && (
             <button
@@ -221,7 +241,7 @@ export function GiftView({
               role="tab"
               aria-selected={tab === key}
               onClick={() => setTab(key)}
-              className="h-10 rounded-[9px] text-sm"
+              className="h-10 rounded-[9px] text-sm short:h-9"
               style={{
                 background: tab === key ? ts.segOn : "transparent",
                 fontWeight: tab === key ? 700 : 500,
@@ -234,20 +254,34 @@ export function GiftView({
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col">
+      <main className="flex min-h-0 flex-1 flex-col">
         {n === 0 ? (
           <p className="flex flex-1 items-center justify-center px-8 py-20 text-center text-sm" style={{ color: ts.sub }}>
             {live ? "친구들이 마음을 모으고 있어요. 조금만 기다려 주세요." : "아직 도착한 메시지가 없어요."}
           </p>
         ) : tab === "scene" ? (
-          <>
-            <GiftScene theme={board.theme} messages={messages} seed={board.id} onOpen={setOpen} />
-            {board.theme !== "note" && (
-              <p className="pb-2 text-center text-[13px]" style={{ color: ts.sub }}>
+          fit ? (
+            <>
+              {/* 남은 높이 안에 장면을 비율 그대로 최대한 크게 */}
+              <div className="flex min-h-0 flex-1 items-center justify-center" style={{ containerType: "size" }}>
+                <div style={{ width: `min(100cqw, calc(100cqh * ${SCENE_W} / 470))` }}>
+                  <GiftScene theme={board.theme} messages={messages} seed={board.id} onOpen={setOpen} />
+                </div>
+              </div>
+              <p className="shrink-0 pb-1 text-center text-[13px]" style={{ color: ts.sub }}>
                 {theme.tapHint}
               </p>
-            )}
-          </>
+            </>
+          ) : (
+            <>
+              <GiftScene theme={board.theme} messages={messages} seed={board.id} onOpen={setOpen} />
+              {board.theme !== "note" && (
+                <p className="pb-2 text-center text-[13px]" style={{ color: ts.sub }}>
+                  {theme.tapHint}
+                </p>
+              )}
+            </>
+          )
         ) : (
           <ListView
             theme={board.theme}
@@ -261,14 +295,14 @@ export function GiftView({
       </main>
 
       <div
-        className="sticky bottom-0 grid shrink-0 grid-cols-3 gap-2 px-5 pb-6 pt-3"
+        className="sticky bottom-0 grid shrink-0 grid-cols-3 gap-2 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 short:pt-2"
         style={{ background: ts.headerBg }}
       >
         {imageUrl ? (
           <a
             href={imageUrl}
             download
-            className="flex h-[52px] items-center justify-center gap-1.5 rounded-2xl text-sm font-bold"
+            className="flex h-[52px] items-center justify-center gap-1.5 rounded-2xl text-sm font-bold short:h-12"
             style={{ background: ts.btnBg, color: ts.btnInk, border: `1px solid ${ts.btnBorder}` }}
           >
             <DownloadIcon />
@@ -281,7 +315,7 @@ export function GiftView({
           <button
             type="button"
             onClick={share}
-            className="flex h-[52px] items-center justify-center gap-1.5 rounded-2xl text-sm font-bold"
+            className="flex h-[52px] items-center justify-center gap-1.5 rounded-2xl text-sm font-bold short:h-12"
             style={{ background: ts.btnBg, color: ts.btnInk, border: `1px solid ${ts.btnBorder}` }}
           >
             <ShareIcon />
@@ -292,7 +326,7 @@ export function GiftView({
         )}
         <Link
           href="/"
-          className="flex h-[52px] items-center justify-center rounded-2xl text-sm font-bold"
+          className="flex h-[52px] items-center justify-center rounded-2xl text-sm font-bold short:h-12"
           style={{ background: ts.primaryBg, color: ts.primaryInk }}
         >
           나도 만들기

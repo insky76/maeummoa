@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BackIcon } from "@/components/icons";
+import { OwnerNav } from "@/components/OwnerNav";
 import { ShareLinkPanel } from "@/components/ShareLinkPanel";
 import { StatusChip } from "@/components/StatusChip";
 import { THEMES } from "@/lib/domain";
@@ -70,6 +71,7 @@ export default async function BoardManagePage({
             <BackIcon />
           </Link>
           <span className="text-base font-bold">보드 관리</span>
+          <OwnerNav className="ml-auto" />
         </div>
         <div className="flex flex-col gap-1.5 px-3 pt-1">
           <StatusChip status={status} />
@@ -225,7 +227,7 @@ export default async function BoardManagePage({
       </main>
 
       {!delivered && tab !== "settings" && (
-        <div className="sticky bottom-0 border-t border-line-soft bg-white px-5 pb-6 pt-3">
+        <div className="sticky bottom-0 border-t border-line-soft bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3">
           <DeliverButton
             boardId={board.id}
             recipientName={board.recipient_name}

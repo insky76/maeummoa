@@ -4,7 +4,7 @@ import type { ThemeKey } from "@/lib/domain";
 export function ThemeTile({ theme }: { theme: Extract<ThemeKey, "flower" | "star" | "note"> }) {
   if (theme === "flower") {
     return (
-      <div className="flex h-[132px] items-center justify-center rounded-2xl bg-brand-soft">
+      <div className="flex h-[132px] items-center short:h-24 [&>svg]:max-h-[85%] justify-center rounded-2xl bg-brand-soft">
         <svg width="84" height="96" viewBox="0 0 84 96" aria-hidden="true">
           <line x1="26" y1="34" x2="42" y2="88" stroke="#5E9B5A" strokeWidth="2" />
           <line x1="58" y1="34" x2="42" y2="88" stroke="#5E9B5A" strokeWidth="2" />
@@ -20,7 +20,7 @@ export function ThemeTile({ theme }: { theme: Extract<ThemeKey, "flower" | "star
   if (theme === "star") {
     const star = "M0,-8 L2,-2 L8,0 L2,2 L0,8 L-2,2 L-8,0 L-2,-2Z";
     return (
-      <div className="flex h-[132px] items-center justify-center rounded-2xl bg-night">
+      <div className="flex h-[132px] items-center short:h-24 [&>svg]:max-h-[85%] justify-center rounded-2xl bg-night">
         <svg width="90" height="100" viewBox="0 0 90 100" aria-hidden="true">
           <g stroke="#FFF3C4" strokeOpacity="0.35" strokeWidth="1">
             <line x1="20" y1="30" x2="46" y2="20" />
@@ -36,7 +36,7 @@ export function ThemeTile({ theme }: { theme: Extract<ThemeKey, "flower" | "star
     );
   }
   return (
-    <div className="flex h-[132px] items-center justify-center rounded-2xl bg-cork">
+    <div className="flex h-[132px] items-center short:h-24 [&>svg]:max-h-[85%] justify-center rounded-2xl bg-cork">
       <svg width="90" height="100" viewBox="0 0 90 100" aria-hidden="true">
         <rect x="8" y="10" width="36" height="36" rx="2" fill="#FFE58A" transform="rotate(-6 26 28)" />
         <rect x="48" y="14" width="36" height="36" rx="2" fill="#FFC4D0" transform="rotate(5 66 32)" />

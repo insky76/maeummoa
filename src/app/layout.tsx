@@ -41,6 +41,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // 아이폰 홈 바 영역까지 쓰고, 아래 버튼은 safe-area 만큼 띄운다
+  viewportFit: "cover",
   themeColor: "#ffffff",
 };
 
