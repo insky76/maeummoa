@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import { BackIcon } from "@/components/icons";
 import { OwnerNav } from "@/components/OwnerNav";
 import { ShareLinkPanel } from "@/components/ShareLinkPanel";
@@ -30,10 +31,10 @@ export default async function BoardManagePage({
   const { tab: rawTab } = await searchParams;
   const tab: Tab = rawTab === "messages" || rawTab === "settings" ? rawTab : "overview";
 
-  const result = await getOwnedBoard(id);
+  // 보드와 메시지를 동시에 (메시지는 RLS 로 본인 보드 것만 온다)
+  const [result, messages] = await Promise.all([getOwnedBoard(id), listOwnerMessages(id)]);
   if (!result) notFound();
   const { board } = result;
-  const messages = await listOwnerMessages(board.id);
 
   const status = effectiveStatus(board);
   const theme = THEMES[board.theme];
@@ -49,7 +50,10 @@ export default async function BoardManagePage({
 
   // 메시지 탭을 열면 "새 메시지" 기준 시각을 지금으로 옮긴다 (이번 화면은 이전 기준으로 표시)
   if (tab === "messages") {
-    await createAdminClient().from("boards").update({ owner_seen_at: new Date().toISOString() }).eq("id", board.id);
+    // 화면을 먼저 보내고 응답 뒤에 기록한다
+    after(async () => {
+      await createAdminClient().from("boards").update({ owner_seen_at: new Date().toISOString() }).eq("id", board.id);
+    });
   }
 
   const delivered = board.status === "delivered";

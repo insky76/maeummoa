@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Gowun_Dodum, Nanum_Pen_Script, Noto_Sans_KR } from "next/font/google";
+import { Suspense } from "react";
+import { NavProgress } from "@/components/NavProgress";
 import { env } from "@/lib/env";
 import "./globals.css";
 
@@ -49,7 +51,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko">
-      <body className={`${noto.variable} ${gowun.variable} ${pen.variable} antialiased`}>{children}</body>
+      <body className={`${noto.variable} ${gowun.variable} ${pen.variable} antialiased`}>
+        <Suspense fallback={null}>
+          <NavProgress />
+        </Suspense>
+        {children}
+      </body>
     </html>
   );
 }

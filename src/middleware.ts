@@ -18,6 +18,12 @@ export async function middleware(request: NextRequest) {
 
   let response = NextResponse.next({ request });
 
+  // 참여자 화면·약관처럼 로그인을 쓰지 않는 곳은 세션 확인(Supabase 왕복)을 건너뛰어 빠르게 연다
+  const p = request.nextUrl.pathname;
+  if (p.startsWith("/w/") || p === "/privacy" || p === "/terms" || p.endsWith("/image")) {
+    return response;
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !anonKey) {

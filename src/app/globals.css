@@ -110,6 +110,29 @@ button:disabled {
 .mm-float {
   animation: mm-float 3.2s ease-in-out infinite;
 }
+@keyframes mm-progress-start {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 85%;
+  }
+}
+@keyframes mm-breathe {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+.mm-breathe {
+  display: inline-flex;
+  animation: mm-breathe 1.2s ease-in-out infinite;
+}
 .mm-fade-in {
   animation: mm-fade-in 0.4s ease-out both;
 }

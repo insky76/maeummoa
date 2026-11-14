@@ -51,6 +51,7 @@ export async function listOwnedBoards(): Promise<(BoardRow & { messageCount: num
 
 /** 관리 화면용 메시지 목록 (RLS + 컬럼 권한으로 본인 보드의 허용된 컬럼만) */
 export async function listOwnerMessages(boardId: string): Promise<OwnerMessage[]> {
+  if (!/^[0-9a-f-]{36}$/i.test(boardId)) return [];
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("messages")
