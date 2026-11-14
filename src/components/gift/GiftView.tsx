@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { CloseIcon } from "@/components/icons";
 import { ReportButton } from "@/components/ReportButton";
 import { GiftScene, SceneIcon } from "@/components/gift/GiftScene";
+import { useSwipe } from "@/components/gift/useSwipe";
 import { Logo } from "@/components/Logo";
 import { LIMITS, THEMES, type ThemeKey } from "@/lib/domain";
 import { SCENE_W } from "@/lib/scene-layout";
@@ -41,23 +42,28 @@ export function GiftView({
   canSave,
   saved: initiallySaved,
   saveAction,
+  participant,
 }: {
   board: GiftViewBoard;
   messages: PublicMessage[];
-  mode: "gift" | "preview";
+  /** gift: 주인공, preview: 개설자 미리 보기, participant: 참여자 미리 보기 */
+  mode: "gift" | "preview" | "participant";
   giftUrl: string | null;
   imageUrl: string | null;
   live: boolean;
   canSave: boolean;
   saved: boolean;
   saveAction?: () => Promise<SaveResult>;
+  /** 참여자 미리 보기에서 아래 버튼: 참여 화면으로, 작성하기(모으는 중일 때) */
+  participant?: { joinHref: string; writeHref: string | null; recipientName: string };
 }) {
   const theme = THEMES[board.theme];
   const ts = themeStyle(board.theme);
   const n = messages.length;
   const router = useRouter();
 
-  const [phase, setPhase] = useState<"opening" | "scene">(n > 0 ? "opening" : "scene");
+  // 참여자 미리 보기는 오프닝 없이 바로 장면
+  const [phase, setPhase] = useState<"opening" | "scene">(n > 0 && mode !== "participant" ? "opening" : "scene");
   const [tab, setTab] = useState<"scene" | "list">("scene");
   const [listMode, setListMode] = useState<"all" | "one">("all");
   const [oneIdx, setOneIdx] = useState(0);
@@ -181,6 +187,11 @@ export function GiftView({
       className={`mx-auto flex max-w-[480px] flex-col ${fit ? "h-dvh overflow-hidden" : "min-h-dvh"}`}
       style={{ background: ts.bg, color: ts.ink }}
     >
+      {mode === "participant" && participant && (
+        <div className="flex items-center justify-between gap-2 bg-ink px-4 py-2.5 text-[13px] text-white">
+          <span>미리 보기예요. {participant.recipientName}님에게는 마감 후 이렇게 전달돼요.</span>
+        </div>
+      )}
       {mode === "preview" && (
         <div className="flex items-center justify-between gap-2 bg-ink px-4 py-2.5 text-[13px] text-white">
           <span>미리 보기예요. 전달하면 주인공에게 이렇게 보여요.</span>
@@ -294,6 +305,29 @@ export function GiftView({
         )}
       </main>
 
+      {mode === "participant" && participant ? (
+        <div
+          className={`sticky bottom-0 grid shrink-0 gap-2 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 short:pt-2 ${participant.writeHref ? "grid-cols-2" : "grid-cols-1"}`}
+          style={{ background: ts.headerBg }}
+        >
+          <Link
+            href={participant.joinHref}
+            className="flex h-[52px] items-center justify-center rounded-2xl text-sm font-bold short:h-12"
+            style={{ background: ts.btnBg, color: ts.btnInk, border: `1px solid ${ts.btnBorder}` }}
+          >
+            참여 화면으로
+          </Link>
+          {participant.writeHref && (
+            <Link
+              href={participant.writeHref}
+              className="flex h-[52px] items-center justify-center rounded-2xl text-sm font-bold short:h-12"
+              style={{ background: ts.primaryBg, color: ts.primaryInk }}
+            >
+              {theme.writeCta}
+            </Link>
+          )}
+        </div>
+      ) : (
       <div
         className="sticky bottom-0 grid shrink-0 grid-cols-3 gap-2 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 short:pt-2"
         style={{ background: ts.headerBg }}
@@ -332,6 +366,7 @@ export function GiftView({
           나도 만들기
         </Link>
       </div>
+      )}
 
       {open !== null && messages[open] && (
         <MessageModal
@@ -339,7 +374,7 @@ export function GiftView({
           messages={messages}
           index={open}
           setIndex={setOpen}
-          reportable={mode === "gift"}
+          reportable={mode !== "preview"}
         />
       )}
     </div>
@@ -364,6 +399,10 @@ function ListView({
   const ts = themeStyle(theme);
   const n = messages.length;
   const cur = messages[Math.min(idx, n - 1)];
+  const swipe = useSwipe(
+    () => setIdx((idx - 1 + n) % n),
+    () => setIdx((idx + 1) % n),
+  );
   const chip = (on: boolean): React.CSSProperties => ({
     background: on ? (ts.dark ? "#FFFFFF" : "#1F1D2B") : ts.btnBg,
     color: on ? (ts.dark ? "#121831" : "#FFFFFF") : ts.btnInk,
@@ -394,7 +433,11 @@ function ListView({
         </ul>
       ) : (
         <div className="flex flex-1 flex-col items-center justify-center gap-6 py-6">
-          <div className="flex w-full flex-col items-center gap-4 rounded-3xl px-6 py-8 text-center" style={{ background: ts.cardBg, color: ts.cardInk }}>
+          <div
+            className="flex w-full select-none flex-col items-center gap-4 rounded-3xl px-6 py-8 text-center"
+            style={{ background: ts.cardBg, color: ts.cardInk, ...swipe.style }}
+            {...swipe.handlers}
+          >
             <SceneIcon theme={theme} style={cur.style} index={idx} size={56} />
             <p className="min-h-24 whitespace-pre-line font-display text-lg leading-relaxed">{cur.body}</p>
             <strong className="text-sm">{cur.nickname}</strong>
@@ -442,6 +485,10 @@ function MessageModal({
   const m = messages[index];
   const closeRef = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => setIndex(null), [setIndex]);
+  const swipe = useSwipe(
+    () => setIndex((index - 1 + n) % n),
+    () => setIndex((index + 1) % n),
+  );
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -467,21 +514,33 @@ function MessageModal({
       onClick={close}
     >
       <div
-        className="mm-fade-in flex w-full max-w-[420px] flex-col gap-3.5 rounded-[22px] px-[22px] pb-[18px] pt-[22px] shadow-[0_18px_40px_rgba(0,0,0,0.25)]"
-        style={{ background: ts.cardBg, color: ts.cardInk, border: ts.dark ? `1px solid ${ts.btnBorder}` : undefined }}
+        className="mm-fade-in flex w-full max-w-[420px] select-none flex-col gap-3.5 rounded-[22px] px-[22px] pb-[18px] pt-[18px] shadow-[0_18px_40px_rgba(0,0,0,0.25)]"
+        style={{ background: ts.cardBg, color: ts.cardInk, border: ts.dark ? `1px solid ${ts.btnBorder}` : undefined, ...swipe.style }}
         onClick={(e) => e.stopPropagation()}
+        {...swipe.handlers}
       >
         <div className="flex items-center justify-between">
           <span className="flex min-w-0 items-center gap-2.5">
             <SceneIcon theme={theme} style={m.style} index={index} size={34} />
             <strong className="truncate text-base">{m.nickname}</strong>
           </span>
-          <button ref={closeRef} type="button" onClick={close} aria-label="닫기" className="flex h-11 w-11 items-center justify-center">
-            <CloseIcon size={20} />
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={close}
+            aria-label="닫기"
+            className="-mr-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-full opacity-60 hover:opacity-100 focus-visible:opacity-100"
+          >
+            <CloseIcon size={16} />
           </button>
         </div>
         <p className="min-h-[92px] whitespace-pre-line font-display text-lg leading-[1.7]">{m.body}</p>
         <Pager n={n} idx={index} setIdx={(i) => setIndex(i)} theme={theme} />
+        {n > 1 && (
+          <p className="-mt-1 text-center text-[11px]" style={{ color: ts.sub }}>
+            옆으로 밀어서 넘길 수 있어요
+          </p>
+        )}
         {reportable && (
           <div className="flex justify-end">
             <ReportButton messageId={m.id} compact color={ts.sub} />
