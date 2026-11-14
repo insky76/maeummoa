@@ -402,6 +402,7 @@ function ListView({
   const swipe = useSwipe(
     () => setIdx((idx - 1 + n) % n),
     () => setIdx((idx + 1) % n),
+    n > 1,
   );
   const chip = (on: boolean): React.CSSProperties => ({
     background: on ? (ts.dark ? "#FFFFFF" : "#1F1D2B") : ts.btnBg,
@@ -442,25 +443,25 @@ function ListView({
             <p className="min-h-24 whitespace-pre-line font-display text-lg leading-relaxed">{cur.body}</p>
             <strong className="text-sm">{cur.nickname}</strong>
           </div>
-          <Pager n={n} idx={idx} setIdx={setIdx} theme={theme} />
+          <Pager n={n} idx={idx} onPrev={() => swipe.go(-1)} onNext={() => swipe.go(1)} theme={theme} />
         </div>
       )}
     </div>
   );
 }
 
-function Pager({ n, idx, setIdx, theme }: { n: number; idx: number; setIdx: (i: number) => void; theme: ThemeKey }) {
+function Pager({ n, idx, onPrev, onNext, theme }: { n: number; idx: number; onPrev: () => void; onNext: () => void; theme: ThemeKey }) {
   const ts = themeStyle(theme);
   const btn: React.CSSProperties = { border: `1px solid ${ts.btnBorder}`, color: ts.dark ? "#FFFFFF" : ts.ink, background: "transparent" };
   return (
     <div className="flex w-full items-center justify-between">
-      <button type="button" aria-label="이전 메시지" onClick={() => setIdx((idx - 1 + n) % n)} className="flex h-11 w-11 items-center justify-center rounded-full" style={btn}>
+      <button type="button" aria-label="이전 메시지" onClick={onPrev} className="flex h-11 w-11 items-center justify-center rounded-full" style={btn}>
         <Chevron dir="left" />
       </button>
       <span className="text-[13px]" style={{ color: ts.sub }} aria-live="polite">
         {idx + 1} / {n}
       </span>
-      <button type="button" aria-label="다음 메시지" onClick={() => setIdx((idx + 1) % n)} className="flex h-11 w-11 items-center justify-center rounded-full" style={btn}>
+      <button type="button" aria-label="다음 메시지" onClick={onNext} className="flex h-11 w-11 items-center justify-center rounded-full" style={btn}>
         <Chevron dir="right" />
       </button>
     </div>
@@ -488,7 +489,9 @@ function MessageModal({
   const swipe = useSwipe(
     () => setIndex((index - 1 + n) % n),
     () => setIndex((index + 1) % n),
+    n > 1,
   );
+  const { go } = swipe;
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -497,12 +500,12 @@ function MessageModal({
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") close();
-      if (e.key === "ArrowLeft") setIndex((index - 1 + n) % n);
-      if (e.key === "ArrowRight") setIndex((index + 1) % n);
+      if (e.key === "ArrowLeft") go(-1);
+      if (e.key === "ArrowRight") go(1);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [close, index, n, setIndex]);
+  }, [close, go]);
 
   return (
     <div
@@ -535,7 +538,7 @@ function MessageModal({
           </button>
         </div>
         <p className="min-h-[92px] whitespace-pre-line font-display text-lg leading-[1.7]">{m.body}</p>
-        <Pager n={n} idx={index} setIdx={(i) => setIndex(i)} theme={theme} />
+        <Pager n={n} idx={index} onPrev={() => go(-1)} onNext={() => go(1)} theme={theme} />
         {n > 1 && (
           <p className="-mt-1 text-center text-[11px]" style={{ color: ts.sub }}>
             옆으로 밀어서 넘길 수 있어요

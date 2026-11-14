@@ -46,12 +46,15 @@ export const viewport: Viewport = {
   // 아이폰 홈 바 영역까지 쓰고, 아래 버튼은 safe-area 만큼 띄운다
   viewportFit: "cover",
   themeColor: "#ffffff",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ko">
-      <body className={`${noto.variable} ${gowun.variable} ${pen.variable} antialiased`}>
+    // 글꼴 변수는 <html> 에 둔다. Tailwind @theme 값(--font-sans 등)이 :root 에서 계산되기 때문에
+    // <body> 에 두면 변수를 찾지 못해 시스템 글꼴로 떨어진다.
+    <html lang="ko" className={`${noto.variable} ${gowun.variable} ${pen.variable}`}>
+      <body className="antialiased">
         <Suspense fallback={null}>
           <NavProgress />
         </Suspense>

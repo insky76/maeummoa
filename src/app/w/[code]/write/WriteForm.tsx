@@ -134,7 +134,7 @@ export function WriteForm({
             onChange={(e) => setPassword(e.target.value.replace(/\D/g, "").slice(0, 4))}
             placeholder="숫자 4자리"
             aria-invalid={error?.field === "password"}
-            className={`${inputCls} tracking-[6px] ${border("password")}`}
+            className={`${inputCls} tracking-[6px] placeholder:tracking-normal ${border("password")}`}
           />
           <span className="text-xs text-ink-muted">나중에 이 메시지를 고치거나 지울 때 필요해요.</span>
         </label>

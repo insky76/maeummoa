@@ -33,6 +33,10 @@
   --color-night: #121831;
   --color-cork: #d2b184;
 
+}
+
+/* 글꼴은 next/font 변수를 참조하므로 inline 으로 둔다 (쓰는 곳에서 바로 계산) */
+@theme inline {
   --font-sans: var(--font-noto), system-ui, sans-serif;
   --font-display: var(--font-gowun), var(--font-noto), sans-serif;
   --font-hand: var(--font-pen), cursive;
@@ -40,6 +44,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* 휴대폰 브라우저(삼성 인터넷 등)의 강제 다크 모드가 색을 바꾸지 않게 */
+  color-scheme: light;
 }
 
 body {
@@ -109,6 +115,16 @@ button:disabled {
 }
 .mm-float {
   animation: mm-float 3.2s ease-in-out infinite;
+}
+@keyframes mm-card-in {
+  from {
+    transform: translateX(var(--mm-enter-from, 60px));
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 @keyframes mm-progress-start {
   from {
