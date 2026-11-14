@@ -71,6 +71,15 @@ export function flowerLayout(n: number, seed: string, expandAt: number): SceneLa
       size: size * (0.92 + rnd() * 0.16),
     });
   }
+  // 꽃이 적으면 나선 배치가 한쪽으로 쏠리므로, 무게중심을 다발 가운데로 옮긴다
+  if (n > 1) {
+    const mx = items.reduce((a, p) => a + p.x, 0) / n;
+    const my = items.reduce((a, p) => a + p.y, 0) / n;
+    for (const p of items) {
+      p.x = clamp(p.x + (cx - mx), p.size / 2 + 4, SCENE_W - p.size / 2 - 4);
+      p.y = clamp(p.y + (cy - 10 - my), p.size / 2 + 8, 300);
+    }
+  }
   // 아래쪽 꽃이 앞에 오도록
   items.sort((p, q) => p.y - q.y);
   return { height: 470, items, expanded: false };
