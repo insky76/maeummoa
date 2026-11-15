@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { FlowerShape, NoteShape, StarShape } from "@/components/shapes";
 import { LIMITS, type ThemeKey } from "@/lib/domain";
-import { flowerLayout, SCENE_W, seededRandom, starLayout, type Placed } from "@/lib/scene-layout";
+import { flowerLayout, milkyWayPath, SCENE_W, seededRandom, starLayout, type Placed } from "@/lib/scene-layout";
 import type { PublicMessage } from "@/lib/types";
 import { resolveVariant } from "@/lib/variants";
 
@@ -87,7 +87,12 @@ function FlowerScene({ messages, seed, onOpen }: SceneProps) {
             className="mm-pop absolute aspect-square rounded-full p-0 transition-transform hover:scale-110 focus-visible:scale-110"
             style={{ ...pos(p, height), animationDelay: stagger(i, messages.length) }}
           >
-            <svg viewBox="-24 -24 48 48" className="h-full w-full" aria-hidden="true">
+            <svg
+              viewBox="-24 -24 48 48"
+              className="mm-sway h-full w-full"
+              style={{ animationDelay: `${-((i * 0.53) % 4)}s`, animationDuration: `${3.6 + (i % 5) * 0.35}s` }}
+              aria-hidden="true"
+            >
               <FlowerShape v={resolveVariant("flower", m.style, i)} />
             </svg>
           </button>
@@ -113,18 +118,16 @@ function StarScene({ messages, seed, onOpen }: SceneProps) {
   return (
     <div className="relative w-full" style={{ aspectRatio: `${SCENE_W} / ${height}` }}>
       <svg viewBox={`0 0 ${SCENE_W} ${height}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
-        <defs>
-          <linearGradient id="mm-milky" x1="1" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#3A4475" stopOpacity="0" />
-            <stop offset="0.5" stopColor="#5A63A0" stopOpacity="0.45" />
-            <stop offset="1" stopColor="#3A4475" stopOpacity="0" />
-          </linearGradient>
-        </defs>
         {expanded && (
-          <path
-            d={`M${SCENE_W * 0.85 + 140} -20 L${SCENE_W * 0.15 + 140} ${height + 20} L${SCENE_W * 0.15 - 140} ${height + 20} L${SCENE_W * 0.85 - 140} -20Z`}
-            fill="url(#mm-milky)"
-          />
+          <g aria-hidden="true">
+            <defs>
+              <filter id="mm-milky-blur" x="-50%" y="-10%" width="200%" height="120%">
+                <feGaussianBlur stdDeviation="18" />
+              </filter>
+            </defs>
+            <path d={milkyWayPath(height, seed)} stroke="#4C5694" strokeOpacity={0.45} strokeWidth={170} fill="none" filter="url(#mm-milky-blur)" />
+            <path d={milkyWayPath(height, seed)} stroke="#7B84C4" strokeOpacity={0.25} strokeWidth={60} fill="none" filter="url(#mm-milky-blur)" />
+          </g>
         )}
         {dust.map((d, i) => (
           <circle key={i} cx={d.x} cy={d.y} r={d.r} fill="#FFFFFF" opacity={d.o} />
@@ -169,23 +172,31 @@ function NoteScene({ theme, messages, onOpen }: { theme: ThemeKey; messages: Pub
             type="button"
             onClick={() => onOpen(i)}
             aria-label={`${m.nickname}님의 쪽지`}
-            className="mm-pop relative flex flex-col justify-between gap-2.5 p-3.5 pt-[18px] text-left shadow-[0_4px_8px_rgba(60,40,10,0.22)]"
-            style={{
-              background: v.color,
-              transform: `rotate(${NOTE_ROT[i % NOTE_ROT.length]}deg)`,
-              minHeight: dense ? 104 : 132,
-              animationDelay: stagger(i, messages.length),
-            }}
+            className="mm-pop text-left"
+            style={{ animationDelay: stagger(i, messages.length) }}
           >
-            <span
-              className="absolute -top-[7px] left-1/2 h-3.5 w-3.5 -translate-x-1/2 rounded-full shadow-[0_2px_2px_rgba(0,0,0,0.25)]"
-              style={{ background: v.accent }}
-              aria-hidden="true"
-            />
-            <p className={`font-hand leading-tight text-[#2B2620] ${dense ? "line-clamp-4 text-lg" : "line-clamp-6 text-[22px]"}`}>
-              {m.body}
-            </p>
-            <span className={`self-end font-hand text-[#4A4034] ${dense ? "text-base" : "text-xl"}`}>- {m.nickname}</span>
+            {/* 기울기는 이 층에서 (등장 효과의 transform 과 겹치지 않게) */}
+            <span className="block" style={{ transform: `rotate(${NOTE_ROT[i % NOTE_ROT.length]}deg)` }}>
+              <span
+                className="mm-flutter relative flex flex-col justify-between gap-2.5 p-3.5 pt-[18px] shadow-[0_4px_8px_rgba(60,40,10,0.22)]"
+                style={{
+                  background: v.color,
+                  minHeight: dense ? 104 : 132,
+                  animationDelay: `${-((i * 0.71) % 5)}s`,
+                  animationDuration: `${4.2 + (i % 4) * 0.5}s`,
+                }}
+              >
+                <span
+                  className="absolute -top-[7px] left-1/2 h-3.5 w-3.5 -translate-x-1/2 rounded-full shadow-[0_2px_2px_rgba(0,0,0,0.25)]"
+                  style={{ background: v.accent }}
+                  aria-hidden="true"
+                />
+                <span className={`font-hand leading-tight text-[#2B2620] ${dense ? "line-clamp-4 text-lg" : "line-clamp-6 text-[22px]"}`}>
+                  {m.body}
+                </span>
+                <span className={`self-end font-hand text-[#4A4034] ${dense ? "text-base" : "text-xl"}`}>- {m.nickname}</span>
+              </span>
+            </span>
           </button>
         );
       })}

@@ -92,16 +92,38 @@ export function starLayout(lengths: number[], seed: string, expandAt: number): S
   const sizeOf = (len: number, base: number) => base + Math.min(len, 120) / 120 * 16;
 
   if (n >= expandAt) {
-    const height = 520 + Math.ceil((n - expandAt) / 6) * 60;
+    // 은하수: 화면 전체 폭을 쓰도록 5열 격자에 흩뿌리고, 은하수 띠는 배경에서 S자로 흐르게 한다
+    const cols = 5;
+    const cell = SCENE_W / cols;
+    const rows = Math.ceil(n / cols);
+    const rowH = 58;
+    const height = 60 + rows * rowH + 60;
     const items: Placed[] = [];
     for (let i = 0; i < n; i++) {
-      const y = 40 + ((i + rnd()) / n) * (height - 80);
-      // 은하수 띠: 왼쪽 아래 → 오른쪽 위로 흐르는 중심선 주변에 모인다
-      const band = SCENE_W * 0.85 - (y / height) * SCENE_W * 0.7;
-      const spread = (rnd() + rnd() + rnd() - 1.5) * 120;
-      items.push({ x: clamp(band + spread, 20, SCENE_W - 20), y, size: sizeOf(lengths[i], 22) });
+      const r = Math.floor(i / cols);
+      const c = i % cols;
+      items.push({
+        x: clamp(c * cell + cell / 2 + (rnd() - 0.5) * cell * 0.7, 18, SCENE_W - 18),
+        y: 60 + r * rowH + rowH / 2 + (rnd() - 0.5) * rowH * 0.7,
+        size: sizeOf(lengths[i], 22),
+      });
     }
-    return { height, items, expanded: true };
+    // 가까운 별 몇 개만 이어 작은 별자리처럼
+    const links: [number, number][] = [];
+    for (let i = 1; i < n; i++) {
+      if (rnd() > 0.35) continue;
+      let j = -1;
+      let d = Infinity;
+      for (let k = Math.max(0, i - cols - 1); k < i; k++) {
+        const dk = Math.hypot(items[i].x - items[k].x, items[i].y - items[k].y);
+        if (dk < d) {
+          d = dk;
+          j = k;
+        }
+      }
+      if (j >= 0 && d < 95) links.push([j, i]);
+    }
+    return { height, items, expanded: true, links };
   }
 
   const height = 470;
@@ -138,4 +160,17 @@ export function starLayout(lengths: number[], seed: string, expandAt: number): S
     if (j >= 0 && d < 130) links.push([j, i]);
   }
   return { height, items, expanded: false, links };
+}
+
+/** 은하수 띠의 중심선 (S자로 흐름). SVG path 문자열 */
+export function milkyWayPath(height: number, seed: string): string {
+  const rnd = seededRandom(`${seed}:milky`);
+  const phase = rnd() * Math.PI * 2;
+  const period = 300 + rnd() * 140;
+  const pts: string[] = [];
+  for (let y = -20; y <= height + 20; y += 20) {
+    const x = SCENE_W / 2 + Math.sin(y / period + phase) * SCENE_W * 0.28;
+    pts.push(`${pts.length ? "L" : "M"}${x.toFixed(1)} ${y}`);
+  }
+  return pts.join(" ");
 }
