@@ -20,7 +20,7 @@ import { resolveVariant } from "@/lib/variants";
 export const OG_SIZE = { width: 1200, height: 630 };
 
 /** Satori 는 <svg> 안에 컴포넌트를 못 쓰므로, 함수 컴포넌트를 펼쳐 기본 SVG 요소만 남긴다 */
-function flatten(node: ReactNode): ReactNode {
+export function flatten(node: ReactNode): ReactNode {
   if (Array.isArray(node)) return node.map(flatten);
   if (!isValidElement(node)) return node;
   const el = node as ReactElement<{ children?: ReactNode }>;
@@ -34,6 +34,65 @@ function flatten(node: ReactNode): ReactNode {
 
 /** 이모지는 외부 CDN 이 필요해서 이미지에서는 뺀다 (화면에서는 그대로 보인다) */
 const stripEmoji = (t: string) => t.replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, "").replace(/ {2,}/g, " ").trim();
+
+/** 서비스 대표 미리보기 (홈 주소를 카톡 등에 붙였을 때) */
+export async function homeOgImage() {
+  const lines = ["흩어진 마음을 모아", "한 사람에게 선물해요"];
+  const sub = "응원 메시지를 모아 꽃다발·밤하늘·쪽지 벽으로";
+  const title = lines.join("");
+  const fonts = await loadOgFonts(`마음모아${title}${sub}한사람을위한응원보드`);
+  const tile = (bg: string, theme: "flower" | "star" | "note") => (
+    <div style={{ display: "flex", width: 150, height: 150, borderRadius: 28, background: bg, alignItems: "center", justifyContent: "center" }}>
+      {flatten(<ThemeHeroArt theme={theme} width={128} />)}
+    </div>
+  );
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          display: "flex",
+          width: "100%",
+          height: "100%",
+          background: "#FFFFFF",
+          fontFamily: ogFontFamily(fonts),
+          padding: "64px 72px",
+          alignItems: "center",
+          gap: 56,
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <svg width="56" height="56" viewBox="0 0 26 26">
+              <circle cx="9" cy="10" r="6" fill="#C2375A" />
+              <circle cx="17" cy="10" r="6" fill="#F08A9E" />
+              <circle cx="13" cy="17" r="6" fill="#F6C94C" opacity="0.92" />
+            </svg>
+            <div style={{ display: "flex", fontSize: 44, color: "#1F1D2B" }}>마음모아</div>
+          </div>
+          <div style={{ display: "flex", alignSelf: "flex-start", padding: "8px 18px", borderRadius: 999, background: "#FCE8EC", color: "#C2375A", fontSize: 26 }}>
+            한 사람을 위한 응원 보드
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", fontSize: 60, lineHeight: 1.35, color: "#1F1D2B" }}>
+            {lines.map((l) => (
+              <div key={l} style={{ display: "flex" }}>
+                {l}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: "flex", fontSize: 28, color: "#5E5A6E", wordBreak: "keep-all" }}>{sub}</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          {tile("#FCE8EC", "flower")}
+          <div style={{ display: "flex", gap: 18 }}>
+            {tile("#121831", "star")}
+            {tile("#D2B184", "note")}
+          </div>
+        </div>
+      </div>
+    ),
+    { ...OG_SIZE, fonts: fonts as OgFont[] },
+  );
+}
 
 const HERO_BG: Record<string, string> = { flower: "#FCE8EC", star: "#121831", note: "#C9A574" };
 
