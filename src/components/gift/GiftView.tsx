@@ -556,12 +556,12 @@ function MessageModal({
       role="dialog"
       aria-modal="true"
       aria-label={`${m.nickname}님의 메시지`}
-      className="fixed inset-0 z-50 flex items-center justify-center p-6"
+      className="mm-fade-in fixed inset-0 z-50 flex items-center justify-center p-6"
       style={{ background: ts.dim }}
       onClick={close}
     >
       <div
-        className="mm-fade-in flex w-full max-w-[420px] select-none flex-col gap-3.5 rounded-[22px] px-[22px] pb-[18px] pt-[18px] shadow-[0_18px_40px_rgba(0,0,0,0.25)]"
+        className="flex w-full max-w-[420px] select-none flex-col gap-3.5 rounded-[22px] px-[22px] pb-[18px] pt-[18px] shadow-[0_18px_40px_rgba(0,0,0,0.25)]"
         style={{ background: ts.cardBg, color: ts.cardInk, border: ts.dark ? `1px solid ${ts.btnBorder}` : undefined, ...swipe.style }}
         onClick={(e) => e.stopPropagation()}
         {...swipe.handlers}
