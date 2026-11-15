@@ -207,7 +207,7 @@ export function GiftView({
       )}
       {mode === "preview" && (
         <div className="flex items-center justify-between gap-2 bg-ink px-4 py-2.5 text-[13px] text-white">
-          <span>미리 보기예요. 전달하면 주인공에게 이렇게 보여요.</span>
+          <span>미리 보기예요. 선물을 완성하면 주인공에게 이렇게 보여요.</span>
           <span className="flex shrink-0 gap-3">
             <Link href={`/boards/${board.id}`} className="font-bold underline underline-offset-2">
               보드 관리

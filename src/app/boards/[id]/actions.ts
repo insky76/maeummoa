@@ -189,19 +189,21 @@ export async function extendDeadline(boardId: string, date: string): Promise<Man
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const r = await requireOwner(boardId);
   if ("error" in r) return { ok: false, error: r.error };
-  if (r.board.status === "delivered") return { ok: false, error: "이미 전달한 보드예요." };
+  if (r.board.status === "delivered") return { ok: false, error: "이미 선물을 완성한 보드예요." };
   return updateBoard(r.board, { deadline_at: deadlineFromDate(parsed.data), status: "collecting" });
 }
 
 /**
- * 전달하기: 보드를 마감하고 선물 링크를 확정한다.
+ * 선물 완성하기(서프라이즈 보드): 보드를 마감하고 선물 링크를 연다.
+ * 실제로 주인공에게 닿는 건 개설자가 선물 링크를 보냈을 때다.
+ * 서프라이즈 OFF 보드는 선물 링크가 처음부터 열려 있어 이 단계 없이 마감일까지 계속 받는다.
  * revealAtLocal(KST 'YYYY-MM-DDTHH:mm')을 주면 그 시각부터 열린다 (서프라이즈 보드만).
  */
 export async function deliverBoard(boardId: string, revealAtLocal: string | null): Promise<ManageResult> {
   const r = await requireOwner(boardId);
   if ("error" in r) return { ok: false, error: r.error };
   const { board } = r;
-  if (board.status === "delivered") return { ok: false, error: "이미 전달한 보드예요." };
+  if (board.status === "delivered") return { ok: false, error: "이미 선물을 완성한 보드예요." };
 
   let revealAt: string | null = null;
   if (revealAtLocal) {
@@ -228,7 +230,7 @@ export async function deliverBoard(boardId: string, revealAtLocal: string | null
 export async function revealNow(boardId: string): Promise<ManageResult> {
   const r = await requireOwner(boardId);
   if ("error" in r) return { ok: false, error: r.error };
-  if (r.board.status !== "delivered") return { ok: false, error: "아직 전달하지 않은 보드예요." };
+  if (r.board.status !== "delivered") return { ok: false, error: "아직 선물을 완성하지 않은 보드예요." };
   return updateBoard(r.board, { reveal_at: null });
 }
 

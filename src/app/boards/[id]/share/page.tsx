@@ -83,8 +83,8 @@ export default async function BoardSharePage({
               </svg>
             </span>
             <p className="text-[13px] leading-relaxed text-[#5C3D00]">
-              참여 링크는 {board.recipient_name}에게 보내지 마세요. 마감 후 <strong>보드 관리 › 전달하기</strong>에서 선물
-              링크를 따로 만들어 보내요.
+              참여 링크는 {board.recipient_name}에게 보내지 마세요. 마감 후 <strong>보드 관리 › 선물 완성하기</strong>를 누르면
+              나오는 선물 링크를 따로 보내요.
             </p>
           </div>
         ) : (

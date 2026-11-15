@@ -6,7 +6,7 @@ import { BoardsIcon } from "@/components/icons";
 const STEPS = [
   { title: "보드 만들기", desc: "주인공과 어울리는 테마를 골라요" },
   { title: "링크 공유", desc: "친구들은 가입 없이 바로 메시지를 남겨요" },
-  { title: "선물 전달", desc: "완성된 페이지를 주인공에게 보내요" },
+  { title: "선물 보내기", desc: "완성된 선물 링크를 주인공에게 보내요" },
 ];
 
 export default function Home() {
