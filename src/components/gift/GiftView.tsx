@@ -582,12 +582,12 @@ function MessageModal({
       onClick={close}
     >
       <div
-        className="flex w-full max-w-[420px] select-none flex-col gap-3.5 rounded-[22px] px-[22px] pb-[18px] pt-[18px] shadow-[0_18px_40px_rgba(0,0,0,0.25)]"
+        className="flex max-h-[calc(100dvh-48px)] w-full max-w-[420px] select-none flex-col gap-3.5 rounded-[22px] px-[22px] pb-[18px] pt-[18px] shadow-[0_18px_40px_rgba(0,0,0,0.25)]"
         style={{ background: ts.cardBg, color: ts.cardInk, border: ts.dark ? `1px solid ${ts.btnBorder}` : undefined, ...swipe.style }}
         onClick={(e) => e.stopPropagation()}
         {...swipe.handlers}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex shrink-0 items-center justify-between">
           <span className="flex min-w-0 items-center gap-2.5">
             <SceneIcon theme={theme} style={m.style} index={index} size={34} />
             <strong className="truncate text-base">{m.nickname}</strong>
@@ -602,8 +602,16 @@ function MessageModal({
             <CloseIcon size={16} />
           </button>
         </div>
-        <p className="min-h-[92px] whitespace-pre-line font-display text-lg leading-[1.7]">{m.body}</p>
-        <Pager n={n} idx={index} onPrev={() => go(-1)} onNext={() => go(1)} theme={theme} />
+        {/* 긴 글은 이 부분만 위아래로 스크롤 (끝에 닿아도 뒤 화면·새로고침으로 넘어가지 않게). 좌우 넘기기는 그대로 */}
+        <p
+          className="-mx-1 min-h-[92px] shrink overflow-y-auto overscroll-contain whitespace-pre-line px-1 font-display text-lg leading-[1.7]"
+          style={{ touchAction: "pan-y" }}
+        >
+          {m.body}
+        </p>
+        <div className="shrink-0">
+          <Pager n={n} idx={index} onPrev={() => go(-1)} onNext={() => go(1)} theme={theme} />
+        </div>
         {n > 1 && (
           <p className="-mt-1 text-center text-[11px]" style={{ color: ts.sub }}>
             옆으로 밀어서 넘길 수 있어요
