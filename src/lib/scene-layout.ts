@@ -31,6 +31,8 @@ export interface SceneLayout {
   expanded: boolean;
   /** 밤하늘 별자리 선 (items 인덱스 쌍) */
   links?: [number, number][];
+  /** 꽃다발: 꽃이 모인 타원 (잎·안개꽃 장식 위치) */
+  cluster?: { cx: number; cy: number; rx: number; ry: number; size: number };
 }
 
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));
@@ -57,17 +59,23 @@ export function flowerLayout(n: number, seed: string, expandAt: number): SceneLa
     return { height: 70 + rows * 62 + 60, items, expanded: true };
   }
 
-  const size = n <= 3 ? 72 : n <= 8 ? 62 : n <= 16 ? 54 : n <= 30 ? 46 : 40;
-  const radius = clamp(28 + Math.sqrt(n) * (size * 0.55), 40, 160);
+  // 꽃이 적을수록 크게, 서로 살짝 겹치도록 붙여서 포장지 위에 둥근 다발로 모은다
+  const size =
+    n <= 1 ? 120 : n <= 3 ? 104 : n <= 6 ? 94 : n <= 10 ? 86 : n <= 16 ? 80 : n <= 25 ? 72 : n <= 35 ? 66 : 60;
+  // 꽃 하나가 차지하는 넓이(서로 겹치게 0.66배)로 다발 타원 크기를 정한다
+  const area = n * (size * 0.66) ** 2;
+  const ry = clamp(Math.sqrt(area / (Math.PI * 1.25)), 0, 135);
+  const rx = clamp(ry * 1.25, 0, 165);
   const cx = SCENE_W / 2;
-  const cy = 190;
+  // 다발 아랫부분이 포장지 윗선(y=262)에 걸치도록
+  const cy = 262 - ry * 0.55 - size * 0.15;
   const items: Placed[] = [];
   for (let i = 0; i < n; i++) {
-    const r = n === 1 ? 0 : Math.sqrt((i + 0.5) / n) * radius;
-    const a = i * GOLDEN + rnd() * 0.3;
+    const t = n === 1 ? 0 : Math.sqrt((i + 0.5) / n);
+    const a = i * GOLDEN + rnd() * 0.35;
     items.push({
-      x: clamp(cx + r * Math.cos(a), size / 2 + 4, SCENE_W - size / 2 - 4),
-      y: clamp(cy + r * Math.sin(a) * 0.82 - 10, size / 2 + 8, 300),
+      x: clamp(cx + t * rx * Math.cos(a), size / 2 + 4, SCENE_W - size / 2 - 4),
+      y: clamp(cy + t * ry * Math.sin(a), size / 2 + 8, 310),
       size: size * (0.92 + rnd() * 0.16),
     });
   }
@@ -82,7 +90,7 @@ export function flowerLayout(n: number, seed: string, expandAt: number): SceneLa
   }
   // 아래쪽 꽃이 앞에 오도록
   items.sort((p, q) => p.y - q.y);
-  return { height: 470, items, expanded: false };
+  return { height: 470, items, expanded: false, cluster: { cx, cy: cy - 10, rx: Math.max(rx, size * 0.45), ry: Math.max(ry, size * 0.4), size } };
 }
 
 /** 밤하늘: 서로 너무 붙지 않게 흩뿌린 별 + 가까운 별끼리 별자리 선. 많으면 대각선 은하수. */
@@ -173,4 +181,37 @@ export function milkyWayPath(height: number, seed: string): string {
     pts.push(`${pts.length ? "L" : "M"}${x.toFixed(1)} ${y}`);
   }
   return pts.join(" ");
+}
+
+/** 꽃다발 둘레 장식: 잎과 안개꽃. 꽃 개수와 상관없이 다발이 풍성해 보이게 */
+export function bouquetGreenery(c: NonNullable<SceneLayout["cluster"]>, n: number, seed: string) {
+  const rnd = seededRandom(`${seed}:green`);
+  const leafCount = clamp(Math.round(6 + n * 0.5), 6, 16);
+  const leaves = Array.from({ length: leafCount }, (_, i) => {
+    // 왼쪽 옆 → 위 → 오른쪽 옆 (165° ~ 375°)
+    const deg = 165 + (210 * (i + 0.5)) / leafCount + (rnd() - 0.5) * 14;
+    const a = (deg * Math.PI) / 180;
+    const r = 0.92 + rnd() * 0.18;
+    const len = c.size * (0.42 + rnd() * 0.18);
+    return {
+      // 화면 밖으로 잘리지 않게
+      x: clamp(c.cx + Math.cos(a) * (c.rx + c.size * 0.18) * r, len / 2 + 2, SCENE_W - len / 2 - 2),
+      y: c.cy + Math.sin(a) * (c.ry + c.size * 0.18) * r,
+      angle: deg,
+      len,
+      dark: rnd() < 0.45,
+    };
+  });
+  const dotCount = clamp(Math.round(14 + n * 0.8), 14, 44);
+  const dots = Array.from({ length: dotCount }, () => {
+    const deg = 160 + rnd() * 220;
+    const a = (deg * Math.PI) / 180;
+    const r = 0.8 + rnd() * 0.42;
+    return {
+      x: c.cx + Math.cos(a) * (c.rx + c.size * 0.1) * r,
+      y: c.cy + Math.sin(a) * (c.ry + c.size * 0.1) * r,
+      r: 2 + rnd() * 1.6,
+    };
+  });
+  return { leaves, dots };
 }
