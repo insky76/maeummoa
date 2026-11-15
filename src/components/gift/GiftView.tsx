@@ -10,6 +10,7 @@ import { useSwipe } from "@/components/gift/useSwipe";
 import { Logo } from "@/components/Logo";
 import { LIMITS, THEMES, type ThemeKey } from "@/lib/domain";
 import { SCENE_W } from "@/lib/scene-layout";
+import { formatDateKo } from "@/lib/date";
 import { themeStyle } from "@/lib/theme-style";
 import type { PublicMessage } from "@/lib/types";
 
@@ -67,6 +68,8 @@ export function GiftView({
   const [tab, setTab] = useState<"scene" | "list">("scene");
   const [listMode, setListMode] = useState<"all" | "one">("all");
   const [oneIdx, setOneIdx] = useState(0);
+  // 목록은 최신순이 기본, 과거순으로 바꿀 수 있다
+  const [listOrder, setListOrder] = useState<"new" | "old">("new");
   const [open, setOpen] = useState<number | null>(null);
   const [saved, setSaved] = useState(initiallySaved);
   const [saveMsg, setSaveMsg] = useState("");
@@ -301,6 +304,11 @@ export function GiftView({
             setMode={setListMode}
             idx={oneIdx}
             setIdx={setOneIdx}
+            order={listOrder}
+            setOrder={(o) => {
+              setListOrder(o);
+              setOneIdx(0);
+            }}
           />
         )}
       </main>
@@ -388,6 +396,8 @@ function ListView({
   setMode,
   idx,
   setIdx,
+  order,
+  setOrder,
 }: {
   theme: ThemeKey;
   messages: PublicMessage[];
@@ -395,13 +405,20 @@ function ListView({
   setMode: (m: "all" | "one") => void;
   idx: number;
   setIdx: (i: number) => void;
+  order: "new" | "old";
+  setOrder: (o: "new" | "old") => void;
 }) {
   const ts = themeStyle(theme);
   const n = messages.length;
-  const cur = messages[Math.min(idx, n - 1)];
+  // 서버는 오래된 순으로 준다. 꾸밈 색이 장면과 같도록 원래 순서(i)를 같이 들고 다닌다.
+  const items = messages.map((m, i) => ({ m, i }));
+  if (order === "new") items.reverse();
+  const curItem = items[Math.min(idx, n - 1)];
+  const cur = curItem.m;
   const swipe = useSwipe(
     () => setIdx((idx - 1 + n) % n),
     () => setIdx((idx + 1) % n),
+    n > 1,
   );
   const chip = (on: boolean): React.CSSProperties => ({
     background: on ? (ts.dark ? "#FFFFFF" : "#1F1D2B") : ts.btnBg,
@@ -411,21 +428,49 @@ function ListView({
   });
   return (
     <div className="flex flex-1 flex-col gap-4 px-5 py-4">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button type="button" aria-pressed={mode === "all"} onClick={() => setMode("all")} className="h-9 rounded-full px-3.5 text-[13px]" style={chip(mode === "all")}>
           모아 보기
         </button>
         <button type="button" aria-pressed={mode === "one"} onClick={() => setMode("one")} className="h-9 rounded-full px-3.5 text-[13px]" style={chip(mode === "one")}>
           한 장씩 넘겨 보기
         </button>
+        <div role="group" aria-label="정렬" className="ml-auto flex rounded-full p-0.5" style={{ background: ts.segBg }}>
+          {(
+            [
+              ["new", "최신순"],
+              ["old", "과거순"],
+            ] as const
+          ).map(([k, label]) => (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={order === k}
+              onClick={() => setOrder(k)}
+              className="h-8 rounded-full px-3 text-xs"
+              style={{
+                background: order === k ? ts.segOn : "transparent",
+                color: order === k ? (ts.dark ? "#FFFFFF" : ts.ink) : ts.sub,
+                fontWeight: order === k ? 700 : 500,
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
       {mode === "all" ? (
         <ul className="flex flex-col gap-2.5">
-          {messages.map((m, i) => (
+          {items.map(({ m, i }) => (
             <li key={m.id} className="flex gap-3 rounded-2xl p-4" style={{ background: ts.cardBg, color: ts.cardInk }}>
               <SceneIcon theme={theme} style={m.style} index={i} size={26} />
-              <div className="flex min-w-0 flex-col gap-1">
-                <strong className="text-[13px]">{m.nickname}</strong>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <span className="flex items-baseline justify-between gap-2">
+                  <strong className="text-[13px]">{m.nickname}</strong>
+                  {m.created_at && (
+                    <span className="shrink-0 text-[11px] opacity-70">{formatDateKo(m.created_at)}</span>
+                  )}
+                </span>
                 <p className="whitespace-pre-line text-[15px] leading-relaxed">{m.body}</p>
               </div>
             </li>
@@ -438,29 +483,29 @@ function ListView({
             style={{ background: ts.cardBg, color: ts.cardInk, ...swipe.style }}
             {...swipe.handlers}
           >
-            <SceneIcon theme={theme} style={cur.style} index={idx} size={56} />
+            <SceneIcon theme={theme} style={cur.style} index={curItem.i} size={56} />
             <p className="min-h-24 whitespace-pre-line font-display text-lg leading-relaxed">{cur.body}</p>
             <strong className="text-sm">{cur.nickname}</strong>
           </div>
-          <Pager n={n} idx={idx} setIdx={setIdx} theme={theme} />
+          <Pager n={n} idx={idx} onPrev={() => swipe.go(-1)} onNext={() => swipe.go(1)} theme={theme} />
         </div>
       )}
     </div>
   );
 }
 
-function Pager({ n, idx, setIdx, theme }: { n: number; idx: number; setIdx: (i: number) => void; theme: ThemeKey }) {
+function Pager({ n, idx, onPrev, onNext, theme }: { n: number; idx: number; onPrev: () => void; onNext: () => void; theme: ThemeKey }) {
   const ts = themeStyle(theme);
   const btn: React.CSSProperties = { border: `1px solid ${ts.btnBorder}`, color: ts.dark ? "#FFFFFF" : ts.ink, background: "transparent" };
   return (
     <div className="flex w-full items-center justify-between">
-      <button type="button" aria-label="이전 메시지" onClick={() => setIdx((idx - 1 + n) % n)} className="flex h-11 w-11 items-center justify-center rounded-full" style={btn}>
+      <button type="button" aria-label="이전 메시지" onClick={onPrev} className="flex h-11 w-11 items-center justify-center rounded-full" style={btn}>
         <Chevron dir="left" />
       </button>
       <span className="text-[13px]" style={{ color: ts.sub }} aria-live="polite">
         {idx + 1} / {n}
       </span>
-      <button type="button" aria-label="다음 메시지" onClick={() => setIdx((idx + 1) % n)} className="flex h-11 w-11 items-center justify-center rounded-full" style={btn}>
+      <button type="button" aria-label="다음 메시지" onClick={onNext} className="flex h-11 w-11 items-center justify-center rounded-full" style={btn}>
         <Chevron dir="right" />
       </button>
     </div>
@@ -488,7 +533,9 @@ function MessageModal({
   const swipe = useSwipe(
     () => setIndex((index - 1 + n) % n),
     () => setIndex((index + 1) % n),
+    n > 1,
   );
+  const { go } = swipe;
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -497,12 +544,12 @@ function MessageModal({
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") close();
-      if (e.key === "ArrowLeft") setIndex((index - 1 + n) % n);
-      if (e.key === "ArrowRight") setIndex((index + 1) % n);
+      if (e.key === "ArrowLeft") go(-1);
+      if (e.key === "ArrowRight") go(1);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [close, index, n, setIndex]);
+  }, [close, go]);
 
   return (
     <div
@@ -535,7 +582,7 @@ function MessageModal({
           </button>
         </div>
         <p className="min-h-[92px] whitespace-pre-line font-display text-lg leading-[1.7]">{m.body}</p>
-        <Pager n={n} idx={index} setIdx={(i) => setIndex(i)} theme={theme} />
+        <Pager n={n} idx={index} onPrev={() => go(-1)} onNext={() => go(1)} theme={theme} />
         {n > 1 && (
           <p className="-mt-1 text-center text-[11px]" style={{ color: ts.sub }}>
             옆으로 밀어서 넘길 수 있어요

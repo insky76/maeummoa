@@ -48,7 +48,7 @@ export function FindMyMessage({ code }: { code: string }) {
           maxLength={4}
           value={pw}
           onChange={(e) => setPw(e.target.value.replace(/\D/g, "").slice(0, 4))}
-          className="h-12 rounded-xl border border-line bg-white px-4 text-base tracking-[6px] outline-none focus-visible:outline-2 focus-visible:outline-brand"
+          className="h-12 rounded-xl border border-line bg-white px-4 text-base tracking-[6px] placeholder:tracking-normal outline-none focus-visible:outline-2 focus-visible:outline-brand"
         />
       </label>
       {error && <p role="alert" className="text-sm text-danger">{error}</p>}

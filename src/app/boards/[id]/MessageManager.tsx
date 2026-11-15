@@ -24,6 +24,7 @@ export function MessageManager({
 }) {
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>("all");
+  const [order, setOrder] = useState<"new" | "old">("new");
   const [editing, setEditing] = useState<OwnerMessage | null>(null);
   const [draft, setDraft] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<OwnerMessage | null>(null);
@@ -36,9 +37,11 @@ export function MessageManager({
     reported: messages.filter((m) => m.report_count > 0).length,
     hidden: messages.filter((m) => m.status === "hidden").length,
   };
-  const shown = messages.filter((m) =>
+  // 서버는 최신순으로 준다
+  const filtered = messages.filter((m) =>
     filter === "all" ? true : filter === "pending" ? m.status === "pending" : filter === "reported" ? m.report_count > 0 : m.status === "hidden",
   );
+  const shown = order === "new" ? filtered : [...filtered].reverse();
 
   function run(key: string, fn: () => Promise<ManageResult>, after?: () => void) {
     setError("");
@@ -61,7 +64,7 @@ export function MessageManager({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-2" role="group" aria-label="메시지 거르기">
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="메시지 거르기">
         {chips
           .filter(([k, , n]) => k === "all" || (n ?? 0) > 0)
           .map(([k, label, n]) => (
@@ -78,6 +81,24 @@ export function MessageManager({
               {n ? ` ${n}` : ""}
             </button>
           ))}
+        <div role="group" aria-label="정렬" className="ml-auto flex rounded-full bg-line-soft p-0.5">
+          {(
+            [
+              ["new", "최신순"],
+              ["old", "과거순"],
+            ] as const
+          ).map(([k, label]) => (
+            <button
+              key={k}
+              type="button"
+              aria-pressed={order === k}
+              onClick={() => setOrder(k)}
+              className={`h-8 rounded-full px-3 text-xs ${order === k ? "bg-white font-bold text-ink shadow-sm" : "font-medium text-ink-sub"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {counts.pending > 0 && filter !== "hidden" && filter !== "reported" && (

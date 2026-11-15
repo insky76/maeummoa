@@ -145,7 +145,7 @@ export function MyMessageCard({
                 autoFocus
                 value={pw}
                 onChange={(e) => setPw(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                className="h-[52px] rounded-xl border border-line px-4 text-base tracking-[6px] outline-none focus-visible:outline-2 focus-visible:outline-brand"
+                className="h-[52px] rounded-xl border border-line px-4 text-base tracking-[6px] placeholder:tracking-normal outline-none focus-visible:outline-2 focus-visible:outline-brand"
               />
             </label>
             {error && <p role="alert" className="text-sm text-danger">{error}</p>}
