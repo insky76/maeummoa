@@ -25,7 +25,7 @@ export default function Home() {
             한 사람을 위한 응원 보드
           </span>
           <h1 className="font-display text-[30px] font-bold leading-snug tracking-tight short:text-[26px]">
-            흩어진 마음을 모아
+            모두의 마음을 모아
             <br />한 사람에게 선물해요
           </h1>
           <p className="text-[15px] leading-relaxed text-ink-sub">

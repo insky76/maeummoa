@@ -37,7 +37,7 @@ const stripEmoji = (t: string) => t.replace(/[\p{Extended_Pictographic}\u{FE0F}\
 
 /** 서비스 대표 미리보기 (홈 주소를 카톡 등에 붙였을 때) */
 export async function homeOgImage() {
-  const lines = ["흩어진 마음을 모아", "한 사람에게 선물해요"];
+  const lines = ["모두의 마음을 모아", "한 사람에게 선물해요"];
   const sub = "응원 메시지를 모아 꽃다발·밤하늘·쪽지 벽으로";
   const title = lines.join("");
   const fonts = await loadOgFonts(`마음모아${title}${sub}한사람을위한응원보드`);
