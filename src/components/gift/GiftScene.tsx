@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { FlowerShape, NoteShape, StarShape } from "@/components/shapes";
 import { LIMITS, type ThemeKey } from "@/lib/domain";
-import { flowerLayout, milkyWayPath, SCENE_W, seededRandom, starLayout, type Placed } from "@/lib/scene-layout";
+import { bouquetGreenery, flowerLayout, milkyWayPath, SCENE_W, seededRandom, starLayout, type Placed } from "@/lib/scene-layout";
 import type { PublicMessage } from "@/lib/types";
 import { resolveVariant } from "@/lib/variants";
 
@@ -44,7 +44,11 @@ function pos(p: Placed, height: number): React.CSSProperties {
 
 function FlowerScene({ messages, seed, onOpen }: SceneProps) {
   const layout = useMemo(() => flowerLayout(messages.length, seed, LIMITS.sceneExpandAt), [messages.length, seed]);
-  const { height, items, expanded } = layout;
+  const { height, items, expanded, cluster } = layout;
+  const green = useMemo(
+    () => (cluster ? bouquetGreenery(cluster, messages.length, seed) : null),
+    [cluster, messages.length, seed],
+  );
   // 배치는 y 순으로 정렬되어 있으므로, 메시지는 순서대로 자리에 앉힌다
   return (
     <div className="relative w-full" style={{ aspectRatio: `${SCENE_W} / ${height}` }}>
@@ -69,6 +73,21 @@ function FlowerScene({ messages, seed, onOpen }: SceneProps) {
             <path d="M240 300 C260 290 270 300 272 312 C258 314 248 310 240 300Z" fill="#6FAE69" />
             <polygon points="104,262 286,262 224,446 166,446" fill="#F3D2C1" />
             <polygon points="104,262 195,262 180,446 166,446" fill="#EBC1AD" />
+            {/* 잎과 안개꽃: 꽃 뒤, 포장지 위 */}
+            {green?.leaves.map((l, i) => (
+              <ellipse
+                key={`l${i}`}
+                cx={l.x}
+                cy={l.y}
+                rx={l.len / 2}
+                ry={l.len / 5.5}
+                transform={`rotate(${l.angle} ${l.x} ${l.y})`}
+                fill={l.dark ? "#5E9B5A" : "#7DBA74"}
+              />
+            ))}
+            {green?.dots.map((d, i) => (
+              <circle key={`d${i}`} cx={d.x} cy={d.y} r={d.r} fill="#FFFFFF" stroke="#EAD7DD" strokeWidth={0.6} />
+            ))}
             <path d="M195 340 C170 312 146 322 158 340 C164 350 182 348 195 340Z" fill="#C2375A" />
             <path d="M195 340 C220 312 244 322 232 340 C226 350 208 348 195 340Z" fill="#C2375A" />
             <path d="M190 344 L176 384 M200 344 L214 384" stroke="#C2375A" strokeWidth={5} strokeLinecap="round" />
