@@ -11,7 +11,7 @@ import { addDays, ddayLabel, formatDateKo, formatDateTimeKo, todayKST, toKSTDate
 import { getOwnedBoard, listOwnerMessages } from "@/lib/server/boards";
 import { qrSvg, siteOrigin } from "@/lib/server/site";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { DeadlineControls, DeliverButton, RevealNowButton } from "./BoardControls";
+import { DeadlineControls, DeliverButton, RevealNowButton, SendGiftLinkButton } from "./BoardControls";
 import { MessageManager } from "./MessageManager";
 import { SettingsForm } from "./SettingsForm";
 
@@ -112,7 +112,7 @@ export default async function BoardManagePage({
               <section className="flex flex-col gap-3 rounded-2xl border border-line-soft bg-white p-4">
                 <div className="flex flex-col gap-1">
                   <strong className="text-[15px]">
-                    {board.delivered_at ? `${formatDateKo(board.delivered_at)} 전달했어요` : "전달했어요"}
+                    {board.delivered_at ? `${formatDateKo(board.delivered_at)} 선물을 완성했어요` : "선물을 완성했어요"}
                   </strong>
                   {revealPending ? (
                     <>
@@ -120,7 +120,9 @@ export default async function BoardManagePage({
                       <RevealNowButton boardId={board.id} />
                     </>
                   ) : (
-                    <span className="text-[13px] text-ink-sub">아래 선물 링크를 {board.recipient_name}에게 보내 주세요.</span>
+                    <span className="text-[13px] text-ink-sub">
+                      아래 선물 링크를 보내야 {board.recipient_name}님이 받을 수 있어요.
+                    </span>
                   )}
                 </div>
                 {giftUrl && (
@@ -180,7 +182,8 @@ export default async function BoardManagePage({
             {!delivered && giftUrl && !board.opt_surprise && (
               <section className="flex flex-col gap-3 rounded-2xl border border-dashed border-line bg-white p-4">
                 <p className="text-[13px] leading-relaxed text-ink-sub">
-                  서프라이즈 모드가 꺼져 있어요. {board.recipient_name}님은 이 링크로 모이는 과정을 실시간으로 볼 수 있어요.
+                  서프라이즈 모드가 꺼져 있어요. {board.recipient_name}님은 이 링크로 모이는 응원을 실시간으로 볼 수 있고, 링크를
+                  보낸 뒤에도 마감일까지 계속 메시지를 받아요.
                 </p>
                 <ShareLinkPanel
                   label="선물 링크"
@@ -232,14 +235,24 @@ export default async function BoardManagePage({
 
       {!delivered && tab !== "settings" && (
         <div className="sticky bottom-0 border-t border-line-soft bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3">
-          <DeliverButton
-            boardId={board.id}
-            recipientName={board.recipient_name}
-            sceneName={theme.sceneName(board.recipient_name)}
-            surprise={board.opt_surprise}
-            messageCount={visible}
-            defaultRevealLocal={`${addDays(today, 1)}T09:00`}
-          />
+          {!board.opt_surprise && giftUrl ? (
+            <SendGiftLinkButton
+              recipientName={board.recipient_name}
+              url={giftUrl}
+              displayUrl={displayUrl(giftUrl)}
+              qrSvg={giftQr}
+              shareTitle={theme.sceneName(board.recipient_name)}
+            />
+          ) : (
+            <DeliverButton
+              boardId={board.id}
+              recipientName={board.recipient_name}
+              sceneName={theme.sceneName(board.recipient_name)}
+              surprise={board.opt_surprise}
+              messageCount={visible}
+              defaultRevealLocal={`${addDays(today, 1)}T09:00`}
+            />
+          )}
         </div>
       )}
     </div>

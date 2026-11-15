@@ -339,7 +339,7 @@ export function CreateWizard({ today }: { today: string }) {
                 label="서프라이즈 모드"
                 description={
                   opts.optSurprise
-                    ? `마감 후 '전달하기'를 누를 때 ${recipientName.trim() || "주인공"}에게 완성된 선물을 보내요`
+                    ? `마감 후 '선물 완성하기'를 누르면 ${recipientName.trim() || "주인공"}에게 보낼 선물 링크가 열려요`
                     : `${recipientName.trim() || "주인공"}에게 선물 링크를 먼저 보내, 모이는 과정을 실시간으로 볼 수 있어요`
                 }
                 checked={opts.optSurprise}

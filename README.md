@@ -122,6 +122,7 @@ supabase/migrations/      DB 스키마 (RLS 포함)
 | 신고 | 기기당 한 번, 관리 화면에 신고 수 표시 (자동 숨김 없음) | `mm_report_message` |
 | 참여자 수정·삭제 | 모으는 중에만. 승인 후 게시 보드는 고치면 다시 확인 대기 | `w/[code]/actions.ts` |
 | 선물 공개 | 서프라이즈 ON: 전달·예약 시각 이후 / OFF: 언제나 / 비공개: 처음 받은 로그인 계정 | `lib/gift-access.ts` |
+| 선물 완성 | 서프라이즈 ON: "선물 완성하기" = 마감 + 선물 링크 열기 (실제 전달은 개설자가 링크를 보낼 때) / OFF: 선물 링크가 처음부터 열려 있어 "선물 링크 보내기"만, 마감일까지 계속 받음 | `boards/[id]/BoardControls.tsx` |
 | 장면 확장 | 메시지 50개 이상이면 꽃밭·은하수·3열 쪽지 | `LIMITS.sceneExpandAt` |
 | 결과 이미지 | 먼저 남긴 24개 메시지, 120자까지, 이모지 제외 | `lib/server/og-images.tsx` |
 

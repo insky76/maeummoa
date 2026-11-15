@@ -96,8 +96,8 @@ async function MadeList() {
           status === "collecting"
             ? `${theme.item} ${b.messageCount}${theme.unit} · 마감 ${ddayLabel(b.deadline_at)}`
             : status === "closed"
-              ? `${theme.item} ${b.messageCount}${theme.unit} · 전달을 기다려요`
-              : `${theme.item} ${b.messageCount}${theme.unit} · ${b.delivered_at ? formatDateKo(b.delivered_at) : ""} 전달`;
+              ? `${theme.item} ${b.messageCount}${theme.unit} · ${b.opt_surprise ? "선물 완성을 기다려요" : "마감"}`
+              : `${theme.item} ${b.messageCount}${theme.unit} · ${b.delivered_at ? `${formatDateKo(b.delivered_at)} ` : ""}선물 완성`;
         return (
           <Link
             key={b.id}

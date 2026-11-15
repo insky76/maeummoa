@@ -56,7 +56,7 @@ export function SettingsForm({
               label="서프라이즈 모드"
               description={
                 opts.optSurprise
-                  ? `전달하기 전에는 ${recipientName}님이 보드를 열 수 없어요`
+                  ? `선물을 완성하기 전에는 ${recipientName}님이 보드를 열 수 없어요`
                   : `${recipientName}님이 모이는 과정을 실시간으로 볼 수 있어요 (선물 링크가 바로 만들어져요)`
               }
               checked={opts.optSurprise}
@@ -78,7 +78,7 @@ export function SettingsForm({
 
       {initial.optSurprise === false && opts.optSurprise && (
         <p className="rounded-xl bg-warn-soft px-4 py-3 text-[13px] leading-relaxed text-warn">
-          이미 보낸 선물 링크가 있다면, 서프라이즈를 켠 뒤에는 전달할 때까지 열리지 않아요.
+          서프라이즈를 켜면, 이미 보낸 선물 링크도 선물을 완성할 때까지 열리지 않아요.
         </p>
       )}
 

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Sheet } from "@/components/Sheet";
+import { ShareLinkPanel } from "@/components/ShareLinkPanel";
 import { addDays, formatDateKo } from "@/lib/date";
 import { LIMITS } from "@/lib/domain";
 import { MAX_DEADLINE_DAYS } from "@/lib/validation";
@@ -101,7 +102,7 @@ export function DeadlineControls({
   );
 }
 
-/** M-04 전달하기: 지금 바로 / 예약 공개 */
+/** M-04 선물 완성하기 (서프라이즈 보드): 지금 바로 / 예약 공개 */
 export function DeliverButton({
   boardId,
   recipientName,
@@ -129,10 +130,10 @@ export function DeliverButton({
         onClick={() => setOpen(true)}
         className="h-[54px] w-full rounded-2xl bg-brand text-base font-bold text-white"
       >
-        {recipientName}에게 전달하기
+        선물 완성하기
       </button>
       {open && (
-        <Sheet title={`${sceneName} 보내기`} onClose={() => setOpen(false)}>
+        <Sheet title={`${sceneName} 완성하기`} onClose={() => setOpen(false)}>
           {surprise && (
             <div className="grid grid-cols-2 gap-2" role="group" aria-label="공개 시점">
               {(
@@ -170,10 +171,11 @@ export function DeliverButton({
             </label>
           )}
           {messageCount === 0 && (
-            <p className="rounded-xl bg-warn-soft px-4 py-3 text-[13px] text-warn">아직 게시된 메시지가 없어요. 그래도 전달할까요?</p>
+            <p className="rounded-xl bg-warn-soft px-4 py-3 text-[13px] text-warn">아직 게시된 메시지가 없어요. 그래도 완성할까요?</p>
           )}
           <p className="text-[13px] leading-relaxed text-ink-sub">
-            전달하면 보드가 마감되고 더 이상 메시지를 받지 않아요. 전달한 뒤 보드 관리에서 선물 링크를 보낼 수 있어요.
+            완성하면 보드가 마감되고 더 이상 메시지를 받지 않아요. 완성한 뒤 나오는 선물 링크를 {recipientName}님에게
+            보내야 받을 수 있어요.
           </p>
           {error && <p role="alert" className="text-sm text-danger">{error}</p>}
           <button
@@ -182,7 +184,7 @@ export function DeliverButton({
             onClick={() => run(() => deliverBoard(boardId, surprise && when === "later" ? reveal : null), () => setOpen(false))}
             className="h-[54px] rounded-2xl bg-brand text-base font-bold text-white disabled:opacity-60"
           >
-            {pending ? "전달하는 중…" : surprise && when === "later" ? "예약하고 링크 받기" : "전달하고 링크 받기"}
+            {pending ? "완성하는 중…" : surprise && when === "later" ? "예약하고 선물 링크 받기" : "완성하고 선물 링크 받기"}
           </button>
         </Sheet>
       )}
@@ -199,5 +201,38 @@ export function RevealNowButton({ boardId }: { boardId: string }) {
       </button>
       {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     </div>
+  );
+}
+
+/** 서프라이즈 OFF 보드: 선물 링크가 이미 열려 있으므로 공유만 한다 (마감하지 않고 계속 받는다) */
+export function SendGiftLinkButton({
+  recipientName,
+  url,
+  displayUrl,
+  qrSvg,
+  shareTitle,
+}: {
+  recipientName: string;
+  url: string;
+  displayUrl: string;
+  qrSvg: string;
+  shareTitle: string;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)} className="h-[54px] w-full rounded-2xl bg-brand text-base font-bold text-white">
+        {recipientName}에게 선물 링크 보내기
+      </button>
+      {open && (
+        <Sheet title="선물 링크 보내기" onClose={() => setOpen(false)}>
+          <p className="text-[13px] leading-relaxed text-ink-sub">
+            서프라이즈 모드가 꺼져 있어서 {recipientName}님은 이 링크로 모이는 응원을 실시간으로 볼 수 있어요. 보낸 뒤에도 마감일까지
+            계속 메시지를 받아요.
+          </p>
+          <ShareLinkPanel label={`${recipientName}에게 보낼 선물 링크`} url={url} displayUrl={displayUrl} qrSvg={qrSvg} shareTitle={shareTitle} />
+        </Sheet>
+      )}
+    </>
   );
 }

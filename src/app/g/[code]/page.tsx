@@ -61,7 +61,7 @@ export default async function GiftPage({ params }: Props) {
                   조금만 기다려 주세요.
                 </>
               ) : (
-                <>친구들이 {board.recipient_name}님을 위해 마음을 모으고 있어요. 전달되면 이 링크로 열 수 있어요.</>
+                <>친구들이 {board.recipient_name}님을 위해 마음을 모으고 있어요. 선물이 완성되면 이 링크로 열 수 있어요.</>
               )}
             </p>
           </>

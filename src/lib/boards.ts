@@ -18,8 +18,8 @@ export function effectiveStatus(
 
 export const STATUS_LABEL: Record<BoardStatus, string> = {
   collecting: "모으는 중",
-  closed: "마감 · 전달 전",
-  delivered: "전달 완료",
+  closed: "마감",
+  delivered: "선물 완성",
 };
 
 export function joinPath(code: string) {
