@@ -107,6 +107,34 @@ button:disabled {
     opacity: 1;
   }
 }
+/* 꽃송이: 바람에 살랑 (줄기 쪽을 축으로) */
+@keyframes mm-sway {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+.mm-sway {
+  animation: mm-sway 4s ease-in-out infinite;
+  transform-origin: 50% 85%;
+}
+/* 쪽지: 압정을 축으로 하늘하늘 */
+@keyframes mm-flutter {
+  0%,
+  100% {
+    transform: rotate(-1.2deg);
+  }
+  50% {
+    transform: rotate(1.2deg);
+  }
+}
+.mm-flutter {
+  animation: mm-flutter 4.5s ease-in-out infinite;
+  transform-origin: 50% 0;
+}
 .mm-pop {
   animation: mm-pop 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.2) both;
 }
