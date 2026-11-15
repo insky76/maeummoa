@@ -12,9 +12,16 @@ const IN_MS = 220;
  * - 미는 동안 손가락을 따라 움직이고(끝으로 갈수록 살짝 저항), 놓으면
  * - 충분히 밀었으면: 민 방향으로 미끄러져 나가고 → 내용이 바뀌고 → 반대쪽에서 들어온다
  * - 덜 밀었으면: 제자리로 부드럽게 돌아온다
- * 위아래 스크롤은 그대로 두기 위해 style 에 touchAction: "pan-y" 를 쓴다.
+ * - 기본: 위아래 스크롤은 브라우저에 맡긴다 (touch-action: pan-y)
+ * - lockScroll: 카드가 손가락 움직임을 모두 받는다 (touch-action: none). 메시지 카드처럼
+ *   세로 스크롤이 필요 없는 곳에서 써서 대각선으로 밀어도 당겨서 새로고침이 끼어들지 않게 한다.
  */
-export function useSwipe(onPrev: () => void, onNext: () => void, enabled = true, threshold = 56) {
+export function useSwipe(
+  onPrev: () => void,
+  onNext: () => void,
+  enabled = true,
+  { threshold = 56, lockScroll = false }: { threshold?: number; lockScroll?: boolean } = {},
+) {
   const start = useRef<{ x: number; y: number; id: number; t: number } | null>(null);
   const width = useRef(320);
   const [dx, setDx] = useState(0);
@@ -60,11 +67,14 @@ export function useSwipe(onPrev: () => void, onNext: () => void, enabled = true,
       const mx = e.clientX - s.x;
       const my = e.clientY - s.y;
       if (phase !== "drag") {
-        if (Math.abs(my) > Math.abs(mx) && Math.abs(my) > 8) {
-          start.current = null; // 세로 스크롤
+        // 방향이 정해질 만큼(10px) 움직인 뒤에 판단한다.
+        // 가로 움직임이 세로의 절반만 넘어도(약 60°까지 비스듬해도) 넘기기로 본다.
+        if (Math.hypot(mx, my) < 10) return;
+        const horizontal = lockScroll ? Math.abs(mx) >= Math.abs(my) * 0.5 : Math.abs(mx) >= Math.abs(my) * 0.8;
+        if (!horizontal) {
+          start.current = null; // 세로 움직임: (pan-y 면) 스크롤에 맡김
           return;
         }
-        if (Math.abs(mx) < 8) return;
         setPhase("drag");
         e.currentTarget.setPointerCapture?.(e.pointerId);
       }
@@ -95,7 +105,7 @@ export function useSwipe(onPrev: () => void, onNext: () => void, enabled = true,
     },
   };
 
-  const style: React.CSSProperties = { touchAction: "pan-y", willChange: "transform" };
+  const style: React.CSSProperties = { touchAction: lockScroll ? "none" : "pan-y", willChange: "transform" };
   if (phase === "drag") {
     style.transform = `translateX(${dx}px)`;
     style.opacity = 1 - Math.min(Math.abs(dx) / (width.current * 1.6), 0.35);

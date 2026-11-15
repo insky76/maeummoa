@@ -91,6 +91,16 @@ export function GiftView({
     } catch {}
   }
 
+  // 선물 화면에서는 당겨서 새로고침을 끈다 (내용이 바뀌지 않거나, 실시간 보드는 자동으로 새로 고친다)
+  useEffect(() => {
+    const html = document.documentElement;
+    const prev = html.style.overscrollBehaviorY;
+    html.style.overscrollBehaviorY = "none";
+    return () => {
+      html.style.overscrollBehaviorY = prev;
+    };
+  }, []);
+
   // 서프라이즈 OFF 로 모으는 중이면 새 메시지를 30초마다 반영
   useEffect(() => {
     if (!live) return;
@@ -534,8 +544,19 @@ function MessageModal({
     () => setIndex((index - 1 + n) % n),
     () => setIndex((index + 1) % n),
     n > 1,
+    { lockScroll: true },
   );
   const { go } = swipe;
+
+  // 카드가 열려 있는 동안 뒤 화면이 스크롤되지 않게
+  useEffect(() => {
+    const body = document.body;
+    const prev = body.style.overflow;
+    body.style.overflow = "hidden";
+    return () => {
+      body.style.overflow = prev;
+    };
+  }, []);
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -557,7 +578,7 @@ function MessageModal({
       aria-modal="true"
       aria-label={`${m.nickname}님의 메시지`}
       className="mm-fade-in fixed inset-0 z-50 flex items-center justify-center p-6"
-      style={{ background: ts.dim }}
+      style={{ background: ts.dim, touchAction: "none", overscrollBehavior: "none" }}
       onClick={close}
     >
       <div
